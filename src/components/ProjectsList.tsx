@@ -39,8 +39,9 @@ export function ProjectsList() {
       }
 
       if (img) {
+        gsap.set(img, { yPercent: -10 });
         gsap.to(img, {
-          yPercent: 15,
+          yPercent: 10,
           ease: "none",
           scrollTrigger: {
             trigger: el,
@@ -94,15 +95,15 @@ export function ProjectsList() {
               className="relative w-full min-h-[500px] flex items-center"
             >
               {/* Massive Background Image Container */}
-              <div className={`img-container absolute top-0 ${isEven ? 'right-0' : 'left-0'} w-full lg:w-4/5 h-[400px] lg:h-[600px] rounded-[2rem] overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl`}>
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent opacity-80 z-10 pointer-events-none" />
+              <div className={`img-container absolute top-0 ${isEven ? 'right-0' : 'left-0'} w-full lg:w-[70%] h-[350px] lg:h-[450px] rounded-[2rem] overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl`}>
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/20 opacity-90 z-10 pointer-events-none" />
                 {project.image ? (
                   <Image
                     src={project.image}
                     alt={project.name}
                     fill
-                    className="object-cover scale-110 origin-top"
-                    sizes="(max-width: 1024px) 100vw, 80vw"
+                    className="object-cover scale-125 origin-center"
+                    sizes="(max-width: 1024px) 100vw, 70vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-zinc-700 font-mono text-sm">
