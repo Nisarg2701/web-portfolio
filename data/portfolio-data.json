@@ -1,0 +1,217 @@
+{
+    "profile":  {
+                    "name":  "Nisarg Pakhawala",
+                    "title":  "Software Developer",
+                    "location":  "Gandhinagar, Gujarat 382007",
+                    "phone":  "+91 95122 41328",
+                    "email":  "nisarg.kalp@gmail.com",
+                    "linkedin":  "https://www.linkedin.com/in/nisarg-pakhawala-a266691b7",
+                    "github":  "https://github.com/Nisarg2701",
+                    "summary":  "Software Developer with 3 of professional experience in designing, developing, and maintaining applications. Strong expertise in Android, Flutter, Python, and backend technologies, with hands-on exposure to AI, ML and NLP driven solutions. Proven ability to deliver production-ready features, refactor legacy codebases, and collaborate effectively in Agile environments. Adaptable, detail-oriented, and open to relocation and learning new technologies as required."
+                },
+    "skills":  {
+                   "databases":  [
+                                     "SQL",
+                                     "SQLite",
+                                     "NoSQL",
+                                     "PostgreSQL",
+                                     "Firebase (Firestore)"
+                                 ],
+                   "backend":  [
+                                   "Python",
+                                   "Django",
+                                   "Laravel",
+                                   "PHP",
+                                   "Java"
+                               ],
+                   "cloud_tools":  [
+                                       "Azure",
+                                       "Git",
+                                       "Bitbucket",
+                                       "Agile",
+                                       "DBMS",
+                                       "Crashlytics"
+                                   ],
+                   "ai_ml":  [
+                                 "Machine Learning",
+                                 "NLP",
+                                 "LLMs",
+                                 "LangChain",
+                                 "Hugging Face",
+                                 "OpenCV",
+                                 "Scikit-learn",
+                                 "Data Science",
+                                 "Generative AI"
+                             ],
+                   "mobile":  [
+                                  "Kotlin",
+                                  "Java",
+                                  "Jetpack Compose",
+                                  "MVVM Architecture",
+                                  "RESTful APIs",
+                                  "Room/SQLite",
+                                  "DI (Dagger, Hilt)",
+                                  "Coroutines \u0026 Flow",
+                                  "Retrofit",
+                                  "OkHttp",
+                                  "Unit Testing (JUnit, Mockito)",
+                                  "Flutter",
+                                  "Cross-platform"
+                              ]
+               },
+    "experience":  [
+                       {
+                           "company":  "Billiyo Health Pvt. Ltd.",
+                           "role":  "Junior Software Developer",
+                           "period":  "11/2023 to 02/2026",
+                           "location":  "Gandhinagar",
+                           "details":  [
+                                           "Developed punch-in/out system and real-time communication module.",
+                                           "Automated Kotlin code management, created reusable libraries (Bitbucket).",
+                                           "Gained exposure to Android Jetpack Compose was pilot to integrate into current projects.",
+                                           "Core project Rebranding. Upscaled the core projects and the library modules to the latest norms of the industry on several occasions.",
+                                           "Python and AI project for location validation and documentation automations across systems."
+                                       ]
+                       },
+                       {
+                           "company":  "Billiyo Health Inc.",
+                           "role":  "Android Development Intern",
+                           "period":  "May \u002723 – Nov \u002723",
+                           "details":  [
+                                           "Contributed to Android feature development and bug fixing.",
+                                           "Learned professional project management and agile practices.",
+                                           "Hands-on experience in Kotlin and Android framework."
+                                       ]
+                       },
+                       {
+                           "company":  "Nyusoft Solutions LLP",
+                           "role":  "Web Development Intern",
+                           "period":  "May \u002722 - June \u002722",
+                           "details":  [
+                                           "Built web application for Financial Consultancy according to the norms of technical architecture of Laravel."
+                                       ]
+                       },
+                       {
+                           "company":  "BrainyBeam Technologies Pvt. Ltd.",
+                           "role":  "Web Development Intern",
+                           "period":  "May \u002721 - June \u002721",
+                           "details":  [
+                                           "Developed custom HTML/JS components.",
+                                           "Assisted in testing \u0026 enhancements of Laravel-based applications."
+                                       ]
+                       }
+                   ],
+    "projects":  [
+                     {
+                         "title":  "E-Shark (Online Pitching Platform)",
+                         "tech":  "Flutter, Firebase, WebRTC",
+                         "description":  "Developed a cross-platform app enabling video calls \u0026 chat for pitching ideas. UI inspired by dating apps mixed with LinkedIn for professional networking. Connects creators with investors featuring real-time video calling.",
+                         "link":  "https://github.com/Nisarg2701/Freelancer2Capitalist",
+                         "image":  "/images/projects/e_shark.jpg"
+                     },
+                     {
+                         "title":  "Attendance System with Face Recognition",
+                         "tech":  "Python, OpenCV, SVM Classifier",
+                         "description":  "Minor Project. Built an automated attendance system achieving 88–90% accuracy using facial recognition with OpenCV and SVM classification.",
+                         "link":  "https://github.com/Nisarg2701/attendanceSystem",
+                         "image":  "/images/projects/attendance_system.jpg"
+                     },
+                     {
+                         "title":  "Financial Consultancy Website",
+                         "tech":  "Laravel, PHP, MySQL",
+                         "description":  "Built a comprehensive consultancy platform with client management, service listing, and appointment booking modules following MVC architecture.",
+                         "link":  "https://github.com/Nisarg2701/IFS2022",
+                         "image":  "/images/projects/financial_consultancy.jpg"
+                     },
+                     {
+                         "title":  "AI Chess Bot",
+                         "tech":  "Python, Pygame",
+                         "description":  "Mini Project. Created an AI-based chess bot using Min-Max Algorithm with Alpha-Beta Pruning for optimized move selection with a GUI.",
+                         "link":  "https://github.com/Nisarg2701/Chess",
+                         "image":  "/images/projects/ai_chess.jpg"
+                     },
+                     {
+                         "title":  "Stocking Inventory App",
+                         "tech":  "Android, Firebase",
+                         "description":  "Designed an inventory management app for efficient stock tracking, product management, and real-time order updates.",
+                         "link":  "https://github.com/Nisarg2701/StockingInventory",
+                         "image":  "/images/projects/inventory_app.jpg"
+                     }
+                 ],
+    "education":  [
+                      {
+                          "degree":  "B. Tech: IT",
+                          "institution":  "Birla Vishwakarma Mahavidhyalaya",
+                          "year":  "05/2023",
+                          "score":  "CGPA: 7.76"
+                      }
+                  ],
+    "certifications":  [
+                           {
+                               "name":  "Python Automation",
+                               "issuer":  "Udemy (Mohammed Fadi C)",
+                               "year":  "2023",
+                               "link":  "https://www.udemy.com/certificate/UC-8bae6da8-9d19-4344-93db-a5347cb5861d/",
+                               "image":  "https://udemy-certificate.s3.amazonaws.com/image/UC-8bae6da8-9d19-4344-93db-a5347cb5861d.jpg",
+                               "description":  "Mastered automating daily tasks, file handling, web scraping, and bot creation using Python."
+                           },
+                           {
+                               "name":  "LLM \u0026 Generative AI Masterclass: LangChain, HuggingFace",
+                               "issuer":  "Udemy",
+                               "year":  "2025",
+                               "link":  "https://www.udemy.com/certificate/UC-4c6bf654-1330-4070-9f37-48d48368355e/",
+                               "image":  "https://udemy-certificate.s3.amazonaws.com/image/UC-4c6bf654-1330-4070-9f37-48d48368355e.jpg",
+                               "description":  "Deep dive into LangChain, HuggingFace, agents, and building LLM-powered applications."
+                           },
+                           {
+                               "name":  "Bluetooth Chat Application (Android)",
+                               "issuer":  "Udemy",
+                               "year":  "2023",
+                               "link":  "https://www.udemy.com/certificate/UC-ce5fd3de-1ccb-431b-a019-db89e54563ab/",
+                               "image":  "https://udemy-certificate.s3.amazonaws.com/image/UC-ce5fd3de-1ccb-431b-a019-db89e54563ab.jpg",
+                               "description":  "Built a full-featured Android application with Bluetooth connectivity and chat functionality from scratch."
+                           },
+                           {
+                               "name":  "Generative AI Mastery with NLP LLM",
+                               "issuer":  "Udemy",
+                               "year":  "2025",
+                               "link":  "https://www.udemy.com/certificate/UC-a92461d9-a83e-4995-b7dd-798dfe7d0454/",
+                               "image":  "https://udemy-certificate.s3.amazonaws.com/image/UC-a92461d9-a83e-4995-b7dd-798dfe7d0454.jpg",
+                               "description":  "Comprehensive guide to NLP, Transformers, BERT, GPT models, and prompt engineering."
+                           },
+                           {
+                               "name":  "Natural Language Processing (NLP) in Python",
+                               "issuer":  "Udemy",
+                               "year":  "2023",
+                               "link":  "https://www.udemy.com/certificate/UC-4c6bf654-1330-4070-9f37-48d48368355e/",
+                               "image":  "/images/NLP_IN_Python_certificate.jpg",
+                               "description":  "Hands-on projects covering text processing, sentiment analysis, and building NLP models using Python."
+                           },
+                           {
+                               "name":  "Hands-on Machine Learning with Python \u0026 ChatGPT",
+                               "issuer":  "Udemy",
+                               "year":  "2023",
+                               "link":  "https://www.udemy.com/certificate/UC-983af10e-91e9-4112-809b-578c3416940c/",
+                               "image":  "https://udemy-certificate.s3.amazonaws.com/image/UC-983af10e-91e9-4112-809b-578c3416940c.jpg",
+                               "description":  "Practical machine learning implementation combined with ChatGPT for code assistance and optimization."
+                           }
+                       ],
+    "leadership":  [
+                       "IT-CP Branch Head – Udaan College Tech Fest, BVM",
+                       "Showcased Face Recognition Attendance System at BVM\u0027s Platinum Jubilee Celebration"
+                   ],
+    "languages":  [
+                      {
+                          "name":  "English",
+                          "proficiency":  "Professional Working Proficiency"
+                      },
+                      {
+                          "name":  "Hindi",
+                          "proficiency":  "Bilingual Proficiency"
+                      },
+                      {
+                          "name":  "Gujarati",
+                          "proficiency":  "Native Proficiency"
+                      }
+                  ]
+}
