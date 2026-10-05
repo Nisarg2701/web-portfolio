@@ -14,15 +14,33 @@ export function ProjectsList() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     
-    // Parallax on images
     projectRefs.current.forEach((el) => {
       if (!el) return;
-      const img = el.querySelector(".parallax-img");
-      const textBlock = el.querySelector(".parallax-text");
       
+      const imgContainer = el.querySelector(".img-container");
+      const img = el.querySelector("img");
+      const textCard = el.querySelector(".text-card");
+      
+      if (imgContainer) {
+        gsap.fromTo(imgContainer, 
+          { clipPath: "inset(10% 10% 10% 10% round 2rem)", scale: 0.95 },
+          { 
+            clipPath: "inset(0% 0% 0% 0% round 2rem)", 
+            scale: 1,
+            duration: 1.5, 
+            ease: "power3.inOut",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+
       if (img) {
         gsap.to(img, {
-          yPercent: 20,
+          yPercent: 15,
           ease: "none",
           scrollTrigger: {
             trigger: el,
@@ -33,20 +51,21 @@ export function ProjectsList() {
         });
       }
 
-      if (textBlock) {
-        gsap.fromTo(
-          textBlock,
-          { opacity: 0, y: 50 },
+      if (textCard) {
+        gsap.fromTo(textCard,
+          { opacity: 0, y: 40, backdropFilter: "blur(0px)" },
           {
-            opacity: 1, 
+            opacity: 1,
             y: 0,
-            duration: 1,
+            backdropFilter: "blur(16px)",
+            duration: 1.2,
             ease: "power3.out",
             scrollTrigger: {
               trigger: el,
-              start: "top 75%",
+              start: "top 70%",
               toggleActions: "play none none reverse",
-            }
+            },
+            delay: 0.2
           }
         );
       }
@@ -59,8 +78,9 @@ export function ProjectsList() {
 
   return (
     <section ref={containerRef} className="py-32 px-6 max-w-7xl mx-auto">
-      <div className="mb-32 text-center md:text-left">
-        <h2 className="text-4xl md:text-6xl font-semibold text-zinc-50 tracking-tighter">Selected Works</h2>
+      <div className="mb-24 text-center md:text-left">
+        <h2 className="text-sm tracking-[0.2em] uppercase font-mono text-emerald-500 mb-4">Selected Works</h2>
+        <h3 className="text-4xl md:text-6xl font-semibold text-zinc-50 tracking-tighter">Featured Projects</h3>
       </div>
 
       <div className="flex flex-col gap-32">
@@ -70,40 +90,44 @@ export function ProjectsList() {
           return (
             <div 
               key={idx} 
-              ref={(el) => {
-                projectRefs.current[idx] = el;
-              }}
-              className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 lg:gap-24 overflow-hidden`}
+              ref={(el) => { projectRefs.current[idx] = el; }}
+              className="relative w-full min-h-[500px] flex items-center"
             >
-              {/* Image Section */}
-              <div className="w-full md:w-3/5">
-                <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl group">
-                  {project.image ? (
-                    <Image
-                      src={project.image}
-                      alt={project.name}
-                      fill
-                      className="parallax-img object-cover scale-125 origin-center transition-transform duration-1000 group-hover:scale-[1.35]"
-                      sizes="(max-width: 768px) 100vw, 60vw"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono">
-                      Image Missing
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-80" />
-                </div>
+              {/* Massive Background Image Container */}
+              <div className={`img-container absolute top-0 ${isEven ? 'right-0' : 'left-0'} w-full lg:w-4/5 h-[400px] lg:h-[600px] rounded-[2rem] overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl`}>
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent opacity-80 z-10 pointer-events-none" />
+                {project.image ? (
+                  <Image
+                    src={project.image}
+                    alt={project.name}
+                    fill
+                    className="object-cover scale-110 origin-top"
+                    sizes="(max-width: 1024px) 100vw, 80vw"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-700 font-mono text-sm">
+                    No Image Provided
+                  </div>
+                )}
               </div>
 
-              {/* Text Section */}
-              <div className="parallax-text w-full md:w-2/5 flex flex-col items-start relative z-10">
-                <p className="font-mono text-emerald-500 text-sm mb-4 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                  {project.type}
-                </p>
-                <h3 className="text-3xl lg:text-5xl font-semibold text-zinc-50 mb-6 leading-tight">
+              {/* Floating Glassmorphic Text Card */}
+              <div className={`text-card relative z-20 w-[90%] md:w-2/3 lg:w-[45%] mx-auto lg:mx-0 ${isEven ? 'lg:mr-auto' : 'lg:ml-auto'} mt-[250px] lg:mt-0 bg-zinc-900/60 hover:bg-zinc-900/80 backdrop-blur-xl border border-zinc-700/50 rounded-[2rem] p-8 md:p-12 shadow-2xl transition-colors duration-500`}>
+                <div className="flex items-center justify-between mb-6">
+                  <p className="font-mono text-emerald-400 text-xs tracking-widest uppercase">
+                    {project.type}
+                  </p>
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
+                  </div>
+                </div>
+
+                <h3 className="text-3xl lg:text-4xl font-semibold text-zinc-50 mb-6 leading-tight">
                   {project.name}
                 </h3>
-                <p className="text-zinc-400 text-lg leading-relaxed mb-8">
+                
+                <p className="text-zinc-300 text-base md:text-lg leading-relaxed mb-8">
                   {project.description}
                 </p>
                 
@@ -112,10 +136,10 @@ export function ProjectsList() {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-3 text-zinc-50 font-medium pb-2 border-b border-emerald-500 hover:text-emerald-400 transition-colors"
+                    className="group inline-flex items-center justify-center gap-3 bg-zinc-100 text-zinc-950 px-6 py-3 rounded-full font-medium tracking-wide transition-all hover:bg-emerald-500"
                   >
-                    View Project
-                    <ArrowUpRight weight="bold" className="w-5 h-5 group-hover:rotate-45 group-hover:-translate-y-1 transition-all" />
+                    <span>View Project</span>
+                    <ArrowUpRight weight="bold" className="w-4 h-4 transition-transform group-hover:rotate-45" />
                   </a>
                 )}
               </div>
