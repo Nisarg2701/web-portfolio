@@ -1,8 +1,25 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useInView, useMotionValue, useTransform, animate } from "motion/react";
+import { useEffect, useRef } from "react";
 import { RESUME_DATA } from "@/data/resume";
 import { GraduationCap, GlobeHemisphereWest, Lightning } from "@phosphor-icons/react/dist/ssr";
+
+function AnimatedScore({ value }: { value: string }) {
+  const target = parseFloat(value) || 0;
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => latest.toFixed(2));
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
+
+  useEffect(() => {
+    if (isInView) {
+      animate(count, target, { duration: 1.5, ease: "easeOut" });
+    }
+  }, [count, isInView, target]);
+
+  return <motion.span ref={ref}>{rounded}</motion.span>;
+}
 
 export function EducationAndLeadership() {
   return (
@@ -43,7 +60,9 @@ export function EducationAndLeadership() {
                 </div>
                 <div className="bg-zinc-950 px-6 py-4 rounded-2xl border border-zinc-800/80 shrink-0">
                   <p className="text-zinc-500 text-sm mb-1 uppercase tracking-widest font-medium">Score</p>
-                  <p className="text-2xl font-mono text-emerald-400">{edu.score.replace('CGPA: ', '')} <span className="text-zinc-600 text-lg">CGPA</span></p>
+                  <p className="text-2xl font-mono text-emerald-400">
+                    <AnimatedScore value={edu.score.replace('CGPA: ', '')} /> <span className="text-zinc-600 text-lg">CGPA</span>
+                  </p>
                 </div>
               </div>
             ))}

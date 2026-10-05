@@ -28,3 +28,5 @@
 - [x] Run Pre-Flight layout check (verify hero widths, gapless grids, contrast ratios).
 - [x] Run Preservation and Brand Fidelity audits.
 - [x] Generate New Logo and Favicon (matching the Dark Tech vibe).
+- [x] Add count-up animation to CGPA score.
+- [x] Fix Experience stacking background so old cards fade out visibly.

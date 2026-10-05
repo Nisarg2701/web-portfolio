@@ -18,19 +18,27 @@
 - **NO Div-Based Fake Screenshots:** Use real images or avoid completely.
 - **NO Over-engineering:** Do not add Redux, complex state management, or heavy libraries if local state suffices.
 
-# Autonomous Decision Engine (Nimble MCP) Policy
+# Autonomous Decision & Multi-Agent Routing Policy
 
-Delegate evaluation to the `fast_decision_evaluator` tool under these conditions:
+All agent operations must adhere to this decision-first workflow:
 
-1. **Pre-edit Scope Check:**
-   - Before executing multi-file edits, evaluate whether the proposed change is `local_only`, `breaking_api`, or `architectural_migration`.
-   - If evaluated as `breaking_api` or `architectural_migration`, require explicit user confirmation before touching files.
+## 1. Initial Task Routing & Subagent Dispatch
+Before creating subagents, generating code, or planning file edits:
+- Call `route_task_to_agent` with the incoming user request or task description.
+- Branch execution strictly based on the evaluated `tier`:
+  - **`local_code_gen`:** Do not invoke heavy cloud reasoning for synthesis. Delegate the generation of unit tests, boilerplate, or isolated methods directly to `generate_local_code`.
+  - **`complex_cloud`:** Proceed with the primary Antigravity multi-file orchestrator agent.
+  - **`human_approval`:** Halt autonomous edits immediately. Generate a dry-run plan/diff and wait for explicit user confirmation.
 
-2. **Root Cause Analysis:**
-   - On build failure, runtime exception, or test failure, run the stack trace and relevant diff through `fast_decision_evaluator` to pick the root-cause category before writing code.
+## 2. Pre-Edit Scope Gating
+- Before touching existing files in multi-file edits, evaluate whether the change is `local_only`, `breaking_api`, or `architectural_migration` using `fast_decision_evaluator`.
+- If evaluated as `breaking_api` or `architectural_migration`, require explicit user confirmation before applying diffs.
 
-3. **Dependency Addition:**
-   - Do not add new external libraries unless the evaluator confirms the task cannot be cleanly resolved via `use_stdlib` or `leverage_existing_dep`.
+## 3. Root Cause Analysis
+- On any build failure, runtime exception, or test failure, evaluate the stack trace and diff with `fast_decision_evaluator` to classify the defect type before attempting code patches.
 
-4. **Commit & Label Generation:**
-   - Classify all git diffs into Conventional Commit types (`feat`, `fix`, `refactor`, `perf`, `chore`) prior to drafting commit messages or summaries.
+## 4. Dependency Addition
+- Do not add new third-party packages to project manifests unless `fast_decision_evaluator` confirms the task cannot be cleanly resolved via `use_stdlib` or `leverage_existing_dep`.
+
+## 5. Commit & Label Generation
+- Classify all git diffs into Conventional Commit types (`feat`, `fix`, `refactor`, `perf`, `chore`) via `fast_decision_evaluator` prior to staging or writing commit messages.

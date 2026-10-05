@@ -57,7 +57,7 @@ export function ExperienceStack() {
         {RESUME_DATA.experience.map((job, i) => (
           <div
             key={i}
-            className="stack-card sticky top-0 min-h-screen w-full flex flex-col items-center justify-center p-6 bg-zinc-950"
+            className="stack-card sticky top-0 min-h-screen w-full flex flex-col items-center justify-center p-6"
             style={{ zIndex: i + 1 }}
           >
             {/* The actual visual card inside the full-height flex container */}

@@ -11,6 +11,7 @@
 2. **First Redesign**: Used MCP `fast_decision_evaluator` to build timeline/terminal UI. User disliked timeline (called it "lame").
 3. **Second Redesign**: Rebuilt Education as Massive Bento Grid. Added GSAP ScrollTrigger to Projects. Added Footer modal for PDF download.
 4. **Final Polish**: Fixed GSAP Experience stacking bleed. Rebuilt Projects to use overlapping glassmorphic cards. Rebuilt Certifications to use vertical stacked bento rows based on user-provided visual references. Switched iframe to `<object>` for clean PDF viewing.
+5. **Post-Review Refinements**: Added count-up GSAP-style `framer-motion` animation for the 7.76 CGPA score. Removed solid background from Experience container so overlapping GSAP fade out is actually visible to the user.
 
 ## Security
 - `portfolio-data.json` is not exposed in `public/`. Data flows through Server Components.
