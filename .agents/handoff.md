@@ -25,12 +25,12 @@ npm run dev
 ## Audit (2026-10-25)
 - Full findings: [Audit.md](Audit.md)
 - Open action list: [Areas-to-Work.md](Areas-to-Work.md). Check it before starting new work.
-- 2026-10-26: all items done on `dev` (see Areas-to-Work.md for commits). L1 waits on merging `dev` into `main`. The hero "View Selected Work" button was removed at the user's request.
-- Local dev note: the remote Udemy cert images return 400 from `/_next/image` on this machine because the network resolves S3 to NAT64 (`64:ff9b::`) addresses, which Next 16 treats as private. Not a code bug; check again after deploying.
+- 2026-10-26: every audit item is done and live (see Areas-to-Work.md for commits). The hero "View Selected Work" button was removed at the user's request.
+- Local dev note: the remote Udemy cert images return 400 from `/_next/image` on this machine because the network resolves S3 to NAT64 (`64:ff9b::`) addresses, which Next 16 treats as private. They load fine on Vercel (verified 2026-10-26), so this is local only.
 - `.claude/launch.json` has a `prod-preview` config (`next start -p 3005`) for testing a production build while another dev server runs.
 - Experience entries now carry `start`/`end` ("YYYY-MM"); `resume.ts` derives "N+ years" from them for the Hero and summary. A job counts end − start months (Jun→Jul = 1); overlapping months count once. Labels by leftover months: 0 "x", 1–2 "x+", 3–5 "~x.5", 6 "x.5", 7–8 "x.5+", 9–11 "~x+1" (`BANDS` in `resume.ts`). Current total: 35 months, shown as "~3 years". Add both fields to any new job.
 
-## Animated hero (committed on `dev` in `cd16f7d`, not yet on `main`)
+## Animated hero (commit `cd16f7d`, live since 2026-10-26)
 - **Animated hero character** replaces the profile photo: `src/components/HeroCharacter.tsx` plays a canvas frame sequence from `public/hero-frames/` (174 webp frames, ~8 MB, including two generated bridge clips). It reacts to the cursor, glances left/right, greets, then glides to a new `#intro` section. Reduced motion is handled.
 - `src/components/Hero.tsx` was split: a greeting ("Hey there! I'm Nisarg…") plus the character, then the headline moved into `#intro`.
 - `cd16f7d` also contains the C1–C7 content fixes (data file, `resume.ts` years calculation, CTA removal), because they were in the shared working tree when it was committed.

@@ -28,6 +28,6 @@ Tick items off as they land, and add the commit hash.
 - [x] **D2:** Delete the unused `public/logo.jpg`. *(2026-10-26, b30d18f. `public/images/profile.jpg` is also unused now but kept on purpose until the hero character work lands.)*
 
 ## 5. Launch
-- [ ] **L1:** Deploy (Vercel). *(Vercel project `portfolio-app` already deploys `main` to nisarg-pakhawala-portfolio.vercel.app; waiting on merging `dev` into `main`.)*
+- [x] **L1:** Deploy (Vercel). *(2026-10-26: `main` fast-forwarded to `2d26dbe` and live at https://nisarg-pakhawala-portfolio.vercel.app via Vercel project `portfolio-app`.)*
 - [x] **L2:** Add Open Graph / Twitter metadata and a preview image in `src/app/layout.tsx`. *(2026-10-26, c49424d: generated card in `src/app/opengraph-image.tsx`.)*
 - [x] **L3:** Replace the boilerplate `README.md` with a real project README. *(2026-10-26, c49424d.)*
