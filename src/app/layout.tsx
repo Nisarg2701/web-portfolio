@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { RESUME_DATA } from "@/data/resume";
+
+const SITE_URL = "https://nisarg-pakhawala-portfolio.vercel.app";
+const TITLE = `${RESUME_DATA.personal.name} — ${RESUME_DATA.personal.role}`;
+const DESCRIPTION = `${RESUME_DATA.personal.role} with ${RESUME_DATA.personal.yearsOfExperience} across Android, Python and applied AI. Selected work, experience and certifications.`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,9 +19,25 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+// The preview image comes from app/opengraph-image.tsx; Next adds its og:image tags automatically.
 export const metadata: Metadata = {
-  title: "Nisarg Pakhawala — Software Developer",
-  description: "Android, Jetpack Compose, & AI/ML Systems",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: RESUME_DATA.personal.name,
+    title: TITLE,
+    description: DESCRIPTION,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
