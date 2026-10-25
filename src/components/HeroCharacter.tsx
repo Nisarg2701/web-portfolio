@@ -74,6 +74,19 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       frames[n] = img;
     };
     const ready = (n: number) => frames[n]?.complete && frames[n].naturalWidth > 0;
+    // load a batch and resolve once every frame in it has arrived (or failed)
+    const loadAll = (ns: number[]) =>
+      Promise.all(
+        ns.map((n) => {
+          load(n);
+          const img = frames[n];
+          if (img.complete) return;
+          return new Promise((r) => {
+            img.addEventListener("load", r, { once: true });
+            img.addEventListener("error", r, { once: true });
+          });
+        }),
+      );
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     load(1, true);
@@ -81,8 +94,6 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       frames[1].onload = () => ctx.drawImage(frames[1], 0, 0, canvas.width, canvas.height);
       return;
     }
-    // working loop first, the greeting next (most likely), the glances last
-    [...range(2, 14), ...GREET, ...range(15, 43), ...B1, ...B2].forEach((n) => load(n));
 
     let mode: Mode = "idle";
     let list = IDLE;
@@ -220,7 +231,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     };
     raf = requestAnimationFrame(tick);
 
-    // desktop: where the cursor sits relative to the image picks the reaction; touch: greet on view
+    // desktop: where the cursor sits relative to the image picks the reaction; touch: taps (below)
     const section = canvas.closest("section") ?? document.body;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     // left/right of the image's middle third react at once; the greeting fires only when the
@@ -239,22 +250,54 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       section.addEventListener("pointermove", onMove);
       section.addEventListener("pointerleave", onLeave);
     }
+    // touch has no hover: tapping the left/right third of the image glances that way, the middle greets
+    const onTap = (e: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      enter(x < 1 / 3 ? "left" : x > 2 / 3 ? "right" : "center");
+    };
+    if (coarse) canvas.addEventListener("click", onTap);
+
+    // touch: greet on first view, but only once the greeting's frames are in (otherwise it stalls
+    // mid-wave); after that, taps drive him
+    let inView = false;
+    let greetReady = false;
+    let autoGreeted = false;
+    const autoGreet = () => {
+      if (!coarse || !greetReady || !inView || autoGreeted) return;
+      autoGreeted = true;
+      enter("center");
+    };
     // once he's scrolled out of view after greeting, go back to working for the next visit
     const io = new IntersectionObserver(
       ([e]) => {
-        if (e.isIntersecting) {
-          if (coarse) enter("center");
-        } else if (mode === "done") setMode("idle");
+        inView = e.isIntersecting;
+        if (inView) autoGreet();
+        else if (mode === "done") setMode("idle");
       },
       { threshold: 0.6 },
     );
     io.observe(canvas);
 
+    // Load in stages so each batch gets the full bandwidth: the working loop first, then the
+    // greeting (plus the blink frame it opens with from working), then the glances.
+    let cancelled = false;
+    (async () => {
+      await loadAll(range(1, 14));
+      await loadAll([BLINK, ...GREET]);
+      if (cancelled) return;
+      greetReady = true;
+      autoGreet();
+      await loadAll([...range(15, 43), ...B1, ...B2]);
+    })();
+
     return () => {
+      cancelled = true;
       cancelAnimationFrame(raf);
       clearTimeout(stop);
       section.removeEventListener("pointermove", onMove);
       section.removeEventListener("pointerleave", onLeave);
+      canvas.removeEventListener("click", onTap);
       io.disconnect();
     };
   }, [scrollTo]);
