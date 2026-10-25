@@ -15,3 +15,6 @@
 
 ## Security
 - `portfolio-data.json` is not exposed in `public/`. Data flows through Server Components.
+
+## Audit
+- 2026-10-25 audit lives in `.agents/Audit.md`; the actionable checklist is `.agents/Areas-to-Work.md`.

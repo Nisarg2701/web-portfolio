@@ -21,3 +21,7 @@ The portfolio has reached the requested "Awwwards/Premium" level. The UI relies 
 npm install
 npm run dev
 ```
+
+## Audit (2026-10-25)
+- Full findings: [Audit.md](Audit.md)
+- Open action list: [Areas-to-Work.md](Areas-to-Work.md). Check it before starting new work.
