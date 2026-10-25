@@ -14,7 +14,7 @@
 5. **Post-Review Refinements**: Added count-up GSAP-style `framer-motion` animation for the 7.76 CGPA score. Removed solid background from Experience container so overlapping GSAP fade out is actually visible to the user.
 
 ## Security
-- `portfolio-data.json` is not exposed in `public/`. Data flows through Server Components.
+- `portfolio-data.json` is not served from `public/`, but most sections are client components, so the data they read ships in the client JS bundle. It is all public info, so that is fine.
 
 ## Audit
 - 2026-10-25 audit lives in `.agents/Audit.md`; the actionable checklist is `.agents/Areas-to-Work.md`.
