@@ -13,68 +13,70 @@ export function ProjectsList() {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    
-    projectRefs.current.forEach((el) => {
-      if (!el) return;
-      
-      const imgContainer = el.querySelector(".img-container");
-      const img = el.querySelector("img");
-      const textCard = el.querySelector(".text-card");
-      
-      if (imgContainer) {
-        gsap.fromTo(imgContainer, 
-          { clipPath: "inset(10% 10% 10% 10% round 2rem)", scale: 0.95 },
-          { 
-            clipPath: "inset(0% 0% 0% 0% round 2rem)", 
-            scale: 1,
-            duration: 1.5, 
-            ease: "power3.inOut",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 80%",
-              toggleActions: "play none none reverse"
+
+    // Animate only when the visitor allows motion; revert() undoes just these tweens/triggers.
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      projectRefs.current.forEach((el) => {
+        if (!el) return;
+        
+        const imgContainer = el.querySelector(".img-container");
+        const img = el.querySelector("img");
+        const textCard = el.querySelector(".text-card");
+        
+        if (imgContainer) {
+          gsap.fromTo(imgContainer, 
+            { clipPath: "inset(10% 10% 10% 10% round 2rem)", scale: 0.95 },
+            { 
+              clipPath: "inset(0% 0% 0% 0% round 2rem)", 
+              scale: 1,
+              duration: 1.5, 
+              ease: "power3.inOut",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 80%",
+                toggleActions: "play none none reverse"
+              }
             }
-          }
-        );
-      }
-
-      if (img) {
-        gsap.set(img, { yPercent: -10 });
-        gsap.to(img, {
-          yPercent: 10,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
-
-      if (textCard) {
-        gsap.fromTo(textCard,
-          { opacity: 0, y: 40, backdropFilter: "blur(0px)" },
-          {
-            opacity: 1,
-            y: 0,
-            backdropFilter: "blur(16px)",
-            duration: 1.2,
-            ease: "power3.out",
+          );
+        }
+  
+        if (img) {
+          gsap.set(img, { yPercent: -10 });
+          gsap.to(img, {
+            yPercent: 10,
+            ease: "none",
             scrollTrigger: {
               trigger: el,
-              start: "top 70%",
-              toggleActions: "play none none reverse",
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
             },
-            delay: 0.2
-          }
-        );
-      }
+          });
+        }
+  
+        if (textCard) {
+          gsap.fromTo(textCard,
+            { opacity: 0, y: 40, backdropFilter: "blur(0px)" },
+            {
+              opacity: 1,
+              y: 0,
+              backdropFilter: "blur(16px)",
+              duration: 1.2,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 70%",
+                toggleActions: "play none none reverse",
+              },
+              delay: 0.2
+            }
+          );
+        }
+      });
     });
 
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
+    return () => mm.revert();
   }, []);
 
   return (

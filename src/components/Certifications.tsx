@@ -16,28 +16,30 @@ export function Certifications() {
     const cards = listRef.current?.querySelectorAll(".cert-row-card");
     if (!cards) return;
 
-    cards.forEach((card) => {
-      gsap.fromTo(
-        card,
-        { opacity: 0, y: 50, scale: 0.98 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: card,
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
+    // Animate only when the visitor allows motion; revert() undoes just these tweens/triggers.
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      cards.forEach((card) => {
+        gsap.fromTo(
+          card,
+          { opacity: 0, y: 50, scale: 0.98 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
     });
 
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
+    return () => mm.revert();
   }, []);
 
   return (

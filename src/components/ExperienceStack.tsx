@@ -16,19 +16,11 @@ export function ExperienceStack() {
     
     gsap.registerPlugin(ScrollTrigger);
 
+    // Pinning is CSS `sticky top-0` on each .stack-card; GSAP only shrinks/fades the card being covered.
     const ctx = gsap.context(() => {
       const cardEls = gsap.utils.toArray<HTMLElement>(".stack-card");
       cardEls.forEach((card, i) => {
-        if (i === cardEls.length - 1) return; // Last card doesn't pin
-        
-        ScrollTrigger.create({
-          trigger: card,
-          start: "top top", // Pin exactly at viewport top
-          endTrigger: cardEls[cardEls.length - 1],
-          end: "top top",
-          pin: true,
-          pinSpacing: false,
-        });
+        if (i === cardEls.length - 1) return; // Nothing covers the last card
 
         gsap.to(card.querySelector(".visual-card"), {
           scale: 0.85,
