@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
 import { focusSkill, skillsIn } from "@/data/skillGraph";
 import { ArrowUpRight, CaretDown, SealCheck } from "@phosphor-icons/react/dist/ssr";
@@ -17,8 +17,14 @@ const TINTS = [
 ];
 
 /** Certificates as a wallet: overlapping cards, one open at a time. */
+// one eased tween for opening and closing: height leads, content fades in just behind it
+const EASE = [0.16, 1, 0.3, 1] as const;
+const OPEN = { height: { duration: 0.45, ease: EASE }, opacity: { duration: 0.3, delay: 0.12 } };
+const CLOSE = { height: { duration: 0.35, ease: EASE }, opacity: { duration: 0.12 } };
+
 export function Certifications() {
   const [open, setOpen] = useState(0);
+  const reduce = useReducedMotion();
 
   return (
     <section id="certifications" className="py-32 px-6 max-w-3xl mx-auto">
@@ -27,52 +33,49 @@ export function Certifications() {
         <h3 className="text-4xl md:text-5xl font-semibold text-zinc-50 tracking-tighter">Featured Certifications</h3>
       </div>
 
-      {/* "user": layout animations are skipped under reduced motion */}
-      <MotionConfig reducedMotion="user" transition={{ type: "spring", stiffness: 260, damping: 30 }}>
-        <div className="flex flex-col">
-          {RESUME_DATA.certifications.map((cert, i) => {
-            const isOpen = i === open;
-            const skills = skillsIn(`${cert.name} ${cert.description}`);
-            return (
-              <motion.div
-                key={cert.name}
-                layout
-                className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.8)] ${TINTS[i % TINTS.length]} ${
-                  isOpen ? "border-emerald-500/40" : "border-zinc-700/60"
-                } ${i > 0 ? "-mt-5" : ""}`}
-                style={{ zIndex: i + 1 }}
+      <div className="flex flex-col">
+        {RESUME_DATA.certifications.map((cert, i) => {
+          const isOpen = i === open;
+          const skills = skillsIn(`${cert.name} ${cert.description}`);
+          return (
+            <div
+              key={cert.name}
+              className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.8)] ${TINTS[i % TINTS.length]} ${
+                isOpen ? "border-emerald-500/40" : "border-zinc-700/60"
+              } ${i > 0 ? "-mt-5" : ""}`}
+              style={{ zIndex: i + 1 }}
+            >
+              <button
+                onClick={() => setOpen(isOpen ? -1 : i)}
+                aria-expanded={isOpen}
+                aria-controls={`cert-${i}`}
+                className="flex w-full items-center gap-4 px-6 pb-6 pt-5 text-left md:px-8"
               >
-                <motion.button
-                  layout="position"
-                  onClick={() => setOpen(isOpen ? -1 : i)}
-                  aria-expanded={isOpen}
-                  aria-controls={`cert-${i}`}
-                  className="flex w-full items-center gap-4 px-6 pb-6 pt-5 text-left md:px-8"
-                >
-                  <SealCheck weight="duotone" className="h-7 w-7 shrink-0 text-emerald-400" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
-                      {cert.issuer} · {cert.year}
-                    </span>
-                    <span className={`mt-1 block font-semibold text-zinc-50 ${isOpen ? "text-xl md:text-2xl" : "truncate text-base md:text-lg"}`}>
-                      {cert.name}
-                    </span>
+                <SealCheck weight="duotone" className="h-7 w-7 shrink-0 text-emerald-400" />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                    {cert.issuer} · {cert.year}
                   </span>
-                  <CaretDown
-                    weight="bold"
-                    className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-                  />
-                </motion.button>
+                  <span className="mt-1 block text-base font-semibold leading-snug text-zinc-50 md:text-lg">
+                    {cert.name}
+                  </span>
+                </span>
+                <CaretDown
+                  weight="bold"
+                  className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                />
+              </button>
 
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      id={`cert-${i}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                      className="grid gap-6 px-6 pb-8 md:grid-cols-[1.2fr_1fr] md:px-8"
-                    >
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    id={`cert-${i}`}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1, transition: reduce ? { duration: 0 } : OPEN }}
+                    exit={{ height: 0, opacity: 0, transition: reduce ? { duration: 0 } : CLOSE }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid gap-6 px-6 pb-8 md:grid-cols-[1.2fr_1fr] md:px-8">
                       <div className="relative aspect-video overflow-hidden rounded-xl border border-zinc-700/60 bg-zinc-950">
                         {cert.image && (
                           <Image src={cert.image} alt={cert.name} fill sizes="(max-width: 768px) 90vw, 400px" className="object-cover" />
@@ -104,14 +107,14 @@ export function Certifications() {
                           <ArrowUpRight weight="bold" className="h-4 w-4" />
                         </a>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
-      </MotionConfig>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
