@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 
 const FPS = 12; // the source clip was cut at 12fps
 const HOLD = 30; // ~2.5s glance hold, in frames
-const src = (n: number) => `/hero-frames/frame_${String(n).padStart(3, "0")}.webp`;
+// phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
+const src = (n: number, small = false) =>
+  `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
+// frames are kept in Cache Storage too, so repeat visits don't depend on the browser's HTTP cache
+// (bump the version whenever the frames change; older caches are deleted)
+const CACHE = "hero-frames-v1";
+const POOL = 6; // parallel downloads
 const range = (a: number, b: number) => {
   const out: number[] = [];
   for (let i = a; a <= b ? i <= b : i >= b; i += a <= b ? 1 : -1) out.push(i);
@@ -59,40 +65,88 @@ const MESSAGES: Partial<Record<Mode, string>> = {
 export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState<string | null>(null);
+  // a plain <img> of the first frame shows until the canvas draws, so something is there even
+  // when scripts or canvas fail (e.g. proxy browsers like Opera Mini)
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const small = coarse || window.innerWidth < 768;
     const frames: HTMLImageElement[] = [];
-    const load = (n: number, high = false) => {
-      if (frames[n]) return;
+    const failed = new Set<number>();
+    const pending = new Map<number, Promise<void>>();
+    const urls: string[] = [];
+    let cancelled = false;
+
+    const store = "caches" in window ? caches.open(CACHE).catch(() => null) : Promise.resolve(null);
+    if ("caches" in window)
+      caches
+        .keys()
+        .then((ks) => ks.forEach((k) => k.startsWith("hero-frames-") && k !== CACHE && caches.delete(k)))
+        .catch(() => {});
+    const fetchFrame = async (url: string) => {
+      const c = await store;
+      let res = await c?.match(url).catch(() => undefined);
+      if (!res) {
+        res = await fetch(url);
+        if (!res.ok) throw new Error(`${res.status}`);
+        c?.put(url, res.clone()).catch(() => {}); // quota or private mode: just skip caching
+      }
+      const blobUrl = URL.createObjectURL(await res.blob());
+      urls.push(blobUrl);
       const img = new Image();
-      if (high) img.fetchPriority = "high";
-      img.src = src(n);
-      frames[n] = img;
+      await new Promise((ok, err) => {
+        img.onload = ok;
+        img.onerror = err;
+        img.src = blobUrl;
+      });
+      return img;
     };
-    const ready = (n: number) => frames[n]?.complete && frames[n].naturalWidth > 0;
-    // load a batch and resolve once every frame in it has arrived (or failed)
-    const loadAll = (ns: number[]) =>
-      Promise.all(
-        ns.map((n) => {
-          load(n);
-          const img = frames[n];
-          if (img.complete) return;
-          return new Promise((r) => {
-            img.addEventListener("load", r, { once: true });
-            img.addEventListener("error", r, { once: true });
-          });
+    // a frame that won't load is retried, then skipped, so the animation never stalls on it
+    const load = (n: number) => {
+      if (!pending.has(n))
+        pending.set(
+          n,
+          (async () => {
+            for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+              try {
+                frames[n] = await fetchFrame(src(n, small));
+                return;
+              } catch {
+                await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+              }
+            }
+            failed.add(n);
+          })(),
+        );
+      return pending.get(n)!;
+    };
+    const ready = (n: number) => !!frames[n];
+    // load a batch a few at a time; resolves once every frame in it has arrived (or given up)
+    const loadAll = async (ns: number[]) => {
+      const queue = [...ns];
+      await Promise.all(
+        Array.from({ length: POOL }, async () => {
+          while (queue.length && !cancelled) await load(queue.shift()!);
         }),
       );
+    };
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    load(1, true);
     if (reduced) {
-      frames[1].onload = () => ctx.drawImage(frames[1], 0, 0, canvas.width, canvas.height);
-      return;
+      load(1).then(() => {
+        if (!frames[1]) return;
+        ctx.drawImage(frames[1], 0, 0, canvas.width, canvas.height);
+        setStarted(true);
+      });
+      return () => {
+        cancelled = true;
+        urls.forEach((u) => URL.revokeObjectURL(u));
+      };
     }
 
     let mode: Mode = "idle";
@@ -119,7 +173,8 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       list = path ?? { idle: IDLE, left: IDLE, right: IDLE, greet: GREET, done: DONE }[next];
       i = 0;
       // "done" keeps the last greeting line on screen
-      if (next !== "done") setMessage(next === "greet" ? "Hey, it's you!" : MESSAGES[next] ?? null);
+      if (next === "done") return;
+      setMessage(next === "greet" ? "Hey, it's you!" : next === "idle" && coarse ? "Tap me" : MESSAGES[next] ?? null);
     };
 
     // Moves glide frame by frame from wherever he is: along the 14-43 take (so right -> left passes
@@ -132,7 +187,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
         side === "left"
           ? inB1()
             ? [...range(shown, 121), ...range(14, L)] // back out of the bridge, then turn left
-            : range(shown || 14, L) // working runs straight into the left turn
+            : range(shown >= 1 && shown <= 14 ? shown : 14, L) // working runs straight into the left turn
           : inB1()
             ? [...range(shown, 138), ...range(32, R)]
             : onTake()
@@ -151,21 +206,28 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       return [BLINK, BLINK, BLINK, ...range(47, END)];
     };
 
-    const enter = (zone: Zone) => {
-      if (mode === "greet" || mode === "done") return;
-      if (zone === "center") setMode("greet", greeting());
-      else if (mode !== zone) setMode(zone, glance(zone));
+    // `tap`: a deliberate click/tap, which can also restart him after the greeting. Resting the
+    // cursor on the middle after the greeting would just loop it, so hover only wakes him with a glance.
+    const enter = (zone: Zone, tap = false) => {
+      if (mode === "greet") return;
+      if (mode === "done" && zone === "center" && !tap) return;
+      if (zone === "center") {
+        setMode("greet", greeting());
+        loadAll(list); // in case these frames are still queued behind others
+      } else if (mode !== zone) setMode(zone, glance(zone));
     };
 
-    let scrolled = false;
+    let inView = false; // mostly visible
+    let onScreen = false;
+    let glide = 0;
+    // every greeting ends by gliding down to what he points at, as long as he's still on screen
     const finishGreeting = () => {
       setMode("done");
-      if (!scrollTo || scrolled || window.scrollY > 80) return;
-      scrolled = true;
-      window.setTimeout(
-        () => document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" }),
-        900,
-      );
+      if (!scrollTo) return;
+      clearTimeout(glide);
+      glide = window.setTimeout(() => {
+        if (inView) document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 900);
     };
 
     const draw = (now: number) => {
@@ -188,8 +250,10 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       if (t >= 1) fadeFrom = null;
     };
 
+    let drawn = false;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
+      if (!onScreen) return; // nothing to animate off screen
       // time-based: when frames arrive late (slow device, throttled tab) skip ahead instead of slowing down
       let steps = Math.min(Math.floor((now - last) / (1000 / FPS)), 6);
       if (steps < 1) {
@@ -198,8 +262,10 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       }
       last = now;
       let n = shown;
-      while (steps-- > 0 && ready(list[i])) {
-        n = list[i++];
+      // frames that never loaded are stepped over rather than waited on
+      while (steps-- > 0 && (ready(list[i]) || failed.has(list[i]))) {
+        if (ready(list[i])) n = list[i];
+        i++;
         if (mode === "greet" && n === 75) setMessage("Hiiii!");
         if (mode === "greet" && n === 97) setMessage("Check out the portfolio");
         if (i >= list.length) {
@@ -228,77 +294,82 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       }
       shown = n;
       draw(now);
+      if (!drawn) {
+        drawn = true;
+        setStarted(true);
+      }
     };
     raf = requestAnimationFrame(tick);
 
-    // desktop: where the cursor sits relative to the image picks the reaction; touch: taps (below)
+    // Mouse: where the cursor sits relative to the image picks the reaction. Left/right of the
+    // image's middle third react at once; the greeting needs the cursor to stay on the middle of the
+    // image briefly (jitter inside it is fine), so a quick sweep across never triggers it.
+    // Touch/pen moves are scrolls, not hovering, so they're ignored.
     const section = canvas.closest("section") ?? document.body;
-    const coarse = window.matchMedia("(pointer: coarse)").matches;
-    // left/right of the image's middle third react at once; the greeting fires only when the
-    // cursor stops on the middle of the image itself, so sweeping across never triggers it
-    let stop = 0;
+    const zoneAt = (x: number): Zone => {
+      const r = canvas.getBoundingClientRect();
+      const f = (x - r.left) / r.width;
+      return f < 1 / 3 ? "left" : f > 2 / 3 ? "right" : "center";
+    };
+    let dwell = 0;
+    let onCenter = false;
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
       const r = canvas.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      clearTimeout(stop);
-      if (x < 1 / 3) enter("left");
-      else if (x > 2 / 3) enter("right");
-      else if (e.clientY >= r.top && e.clientY <= r.bottom) stop = window.setTimeout(() => enter("center"), 500);
+      const zone = zoneAt(e.clientX);
+      if (zone === "center" && e.clientY >= r.top && e.clientY <= r.bottom) {
+        if (!onCenter) dwell = window.setTimeout(() => enter("center"), 250);
+        onCenter = true;
+        return;
+      }
+      clearTimeout(dwell);
+      onCenter = false;
+      if (zone !== "center") enter(zone);
     };
-    const onLeave = () => clearTimeout(stop);
-    if (!coarse) {
-      section.addEventListener("pointermove", onMove);
-      section.addEventListener("pointerleave", onLeave);
-    }
-    // touch has no hover: tapping the left/right third of the image glances that way, the middle greets
+    const onLeave = () => {
+      clearTimeout(dwell);
+      onCenter = false;
+    };
+    section.addEventListener("pointermove", onMove);
+    section.addEventListener("pointerleave", onLeave);
+    // any click or tap on the image: its left/right third glances that way, the middle greets
     const onTap = (e: MouseEvent) => {
-      const r = canvas.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      enter(x < 1 / 3 ? "left" : x > 2 / 3 ? "right" : "center");
+      clearTimeout(dwell);
+      enter(zoneAt(e.clientX), true);
     };
-    if (coarse) canvas.addEventListener("click", onTap);
+    canvas.addEventListener("click", onTap);
 
-    // touch: greet on first view, but only once the greeting's frames are in (otherwise it stalls
-    // mid-wave); after that, taps drive him
-    let inView = false;
-    let greetReady = false;
-    let autoGreeted = false;
-    const autoGreet = () => {
-      if (!coarse || !greetReady || !inView || autoGreeted) return;
-      autoGreeted = true;
-      enter("center");
-    };
-    // once he's scrolled out of view after greeting, go back to working for the next visit
+    // No autoplay: on touch he waits for a tap (the hint says so) rather than starting by himself
+    // whenever the frames happen to arrive. Once he's out of view after greeting, back to working.
     const io = new IntersectionObserver(
       ([e]) => {
-        inView = e.isIntersecting;
-        if (inView) autoGreet();
-        else if (mode === "done") setMode("idle");
+        onScreen = e.isIntersecting;
+        inView = e.intersectionRatio >= 0.6;
+        if (!inView && mode === "done") setMode("idle");
       },
-      { threshold: 0.6 },
+      { threshold: [0, 0.6] },
     );
     io.observe(canvas);
 
-    // Load in stages so each batch gets the full bandwidth: the working loop first, then the
-    // greeting (plus the blink frame it opens with from working), then the glances.
-    let cancelled = false;
+    // Load in stages so each batch gets the bandwidth: the working loop first, then the greeting
+    // (plus the blink frame it opens with from working), then the glances.
     (async () => {
       await loadAll(range(1, 14));
       await loadAll([BLINK, ...GREET]);
-      if (cancelled) return;
-      greetReady = true;
-      autoGreet();
+      if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
       await loadAll([...range(15, 43), ...B1, ...B2]);
     })();
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
-      clearTimeout(stop);
+      clearTimeout(dwell);
+      clearTimeout(glide);
       section.removeEventListener("pointermove", onMove);
       section.removeEventListener("pointerleave", onLeave);
       canvas.removeEventListener("click", onTap);
       io.disconnect();
+      urls.forEach((u) => URL.revokeObjectURL(u));
     };
   }, [scrollTo]);
 
@@ -316,13 +387,22 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       >
         {message ?? " "}
       </p>
+      {/* eslint-disable-next-line @next/next/no-img-element -- fixed-size poster, nothing for next/image to do */}
+      <img
+        src={src(1, true)}
+        alt=""
+        aria-hidden
+        fetchPriority="high"
+        className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-300 [mask-image:linear-gradient(to_bottom,black_80%,transparent)]"
+        style={{ opacity: started ? 0 : 1 }}
+      />
       <canvas
         ref={canvasRef}
         width={1374}
         height={978}
         role="img"
         aria-label="Animated illustration of Nisarg working at a laptop, who looks up, waves and points down to the portfolio"
-        className="relative block h-auto w-full [mask-image:linear-gradient(to_bottom,black_80%,transparent)]"
+        className="relative block h-auto w-full cursor-pointer [mask-image:linear-gradient(to_bottom,black_80%,transparent)]"
       />
     </div>
   );
