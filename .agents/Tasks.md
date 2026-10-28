@@ -50,3 +50,7 @@
 - [x] T4 Credential wallet for certifications
 - [x] T5 `focus-skill` hub link from project and certificate chips
 - [x] T6 Verify desktop + phone + reduced motion, lint/typecheck/build; update docs; merge into `dev`
+
+## Phase 7: Feedback on creative sections (2026-10-28)
+- [x] F1 Wallet: opening/closing felt "wacky" (springy layout jumps, title resizing). Replace with a controlled height + fade tween, fixed title size.
+- [ ] F2 Constellation: reads as jumbled, weakly connected and hard to classify. Diagnose and propose options to the user before changing it.

@@ -65,3 +65,8 @@ Branch `feat/creative-sections`. Plan: Implementation-Plan.md Step 7; checklist:
 - Hub link: `focusSkill(name)` / the `focus-skill` window event selects a skill on the map and scrolls to it; project and certificate chips use it.
 - Not verified here: the reduced-motion paths (the test browser can't emulate the setting); they're the code paths noted in Architecture.md.
 - Bridge 3 on this branch too: holes ringed by hair/headphones stay transparent (fixed the white patches); frame cache `hero-frames-v3`.
+
+## Feedback round on creative sections (2026-10-28)
+Checklist: Tasks.md Phase 7.
+- Wallet (`fix/wallet-motion`, merged into `dev`): the "wacky" motion was spring `layout` animations on every card plus the title changing size on open. Now one eased height + fade tween; title size fixed. Measured: closing and opening cards move together, no overshoot, settled in ~0.35 s.
+- Constellation: user finds it jumbled, weakly connected and hard to classify. Options proposed to the user; waiting on their pick (see Tasks F2).
