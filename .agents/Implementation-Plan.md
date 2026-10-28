@@ -49,3 +49,10 @@ The user picked the recommended combination from [Ideas.md](Ideas.md). Tasks: [T
 3. **Credential wallet** (replaces the certificate rows, keeps `#certifications`). Certificates as overlapping wallet cards; one is open at a time (accordion semantics, `aria-expanded`), showing the certificate image, description, related skills and a Verify link. Motion `layout` animates opening; reduced motion makes it instant.
 
 Hub link: a `focus-skill` window event (skill name) lets project and certificate chips select a skill in the constellation and scroll to it.
+
+## Step 8: Skill wheel (2026-10-28, branch `feat/skill-wheel`)
+The constellation read as jumbled (invisible groups, random-looking spiral, tangled lines, and 23 of 37 skills with no links in the data). User picked the skill wheel.
+- **Data-driven:** groups are the keys of `skills` in `portfolio-data.json`, in file order; titles from a small known-name map, otherwise the key prettified (`cloud_tools` -> "Cloud Tools"). Adding a key adds a slice; adding a skill adds a spoke. Slice size follows skill count.
+- **Desktop:** SVG wheel. Each group is a labelled arc slice; skills sit on the rim with radial labels; node size = number of works. Picking a skill (hover/focus/click) draws curved links through the middle to the skills it shares work with, dims the rest, shows its name in the centre and fills the side panel. Unpicked links stay hidden, so no spaghetti.
+- **Phones:** grouped chips (same dynamic groups) + the same panel.
+- Also: projects progress bar fix (Tailwind v4's `scale-x-*` uses the CSS `scale` property, which multiplied with the inline `transform: scaleX()` and kept the bar near empty).

@@ -7,13 +7,17 @@ export type WorkKind = "Job" | "Project" | "Certificate";
 export type Work = { kind: WorkKind; title: string; subtitle: string; link?: string; skills: string[] };
 export type Skill = { name: string; label: string; group: string; works: Work[] };
 
-export const GROUPS: { key: keyof typeof RESUME_DATA.skills; title: string }[] = [
-  { key: "mobile", title: "Mobile" },
-  { key: "ai", title: "AI & ML" },
-  { key: "backend", title: "Backend" },
-  { key: "databases", title: "Data" },
-  { key: "tools", title: "Tools" },
-];
+// Groups are the category keys in portfolio-data.json "skills", in file order. Known keys get a
+// friendlier title; any new key just becomes a new group (devops_tools -> "Devops Tools").
+const TITLES: Record<string, string> = {
+  mobile: "Mobile",
+  ai_ml: "AI & ML",
+  backend: "Backend",
+  databases: "Data",
+  cloud_tools: "Cloud & Tools",
+};
+const prettify = (key: string) => key.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+export const GROUPS = Object.keys(RESUME_DATA.skills).map((key) => ({ key, title: TITLES[key] ?? prettify(key) }));
 
 /** "DI (Dagger, Hilt)" -> "DI", "Firebase (Firestore)" -> "Firebase" */
 const short = (name: string) => name.replace(/\s*\(.*\)/, "").trim();

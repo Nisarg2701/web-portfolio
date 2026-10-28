@@ -135,7 +135,8 @@ export function ProjectsList() {
 
       <div className={`mt-8 ${EDGE}`}>
         <div className="h-px w-full max-w-xs overflow-hidden bg-zinc-800">
-          <div ref={barRef} className="h-full origin-left scale-x-[0.04] bg-emerald-400" />
+          {/* inline transform only: Tailwind's scale-x-* sets the separate `scale` property, which would multiply with it */}
+          <div ref={barRef} className="h-full origin-left bg-emerald-400" style={{ transform: "scaleX(0.04)" }} />
         </div>
       </div>
     </section>

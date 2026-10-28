@@ -63,13 +63,8 @@ export const RESUME_DATA = {
     github: rawData.profile.github,
     location: rawData.profile.location
   },
-  skills: {
-    mobile: rawData.skills.mobile,
-    ai: rawData.skills.ai_ml,
-    backend: rawData.skills.backend,
-    databases: rawData.skills.databases,
-    tools: rawData.skills.cloud_tools,
-  },
+  // every key under "skills" is a category, in file order; add a key or a skill and the skill wheel picks it up
+  skills: rawData.skills as Record<string, string[]>,
   experience: rawData.experience.map(exp => ({
     company: exp.company,
     location: exp.location ?? "",

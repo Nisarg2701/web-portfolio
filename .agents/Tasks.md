@@ -53,4 +53,6 @@
 
 ## Phase 7: Feedback on creative sections (2026-10-28)
 - [x] F1 Wallet: opening/closing felt "wacky" (springy layout jumps, title resizing). Replace with a controlled height + fade tween, fixed title size.
-- [ ] F2 Constellation: reads as jumbled, weakly connected and hard to classify. Diagnose and propose options to the user before changing it.
+- [x] F2 Constellation: reads as jumbled, weakly connected and hard to classify. Diagnosed; user picked the skill wheel (F4).
+- [x] F3 Projects progress bar stuck near empty
+- [x] F4 Skill wheel replaces the constellation; categories and skills come straight from `portfolio-data.json` (new category key = new slice, new skill = new spoke, no code change)

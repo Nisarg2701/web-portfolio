@@ -60,7 +60,7 @@ Branch `feat/nav-experience-whatsapp`. Plan: Implementation-Plan.md Step 6; chec
 
 ## Creative sections (2026-10-28, merged into `dev`)
 Branch `feat/creative-sections`. Plan: Implementation-Plan.md Step 7; checklist: Tasks.md Phase 6 (done). Details per component: Architecture.md (components 3, 4, 6).
-- `BentoGrid.tsx` was replaced by `SkillConstellation.tsx`; `ProjectsList.tsx` and `Certifications.tsx` were rewritten in place. Section ids are unchanged.
+- `BentoGrid.tsx` was replaced by `SkillConstellation.tsx` (later `SkillWheel.tsx`); `ProjectsList.tsx` and `Certifications.tsx` were rewritten in place. Section ids are unchanged.
 - **Skill links are derived, not invented.** `src/data/skillGraph.ts` matches skill names (whole word, parentheses ignored, e.g. "Firebase (Firestore)" also matches "Firebase") in each job's role + details, project tech + description, certificate name + description. Today only 14 of 37 skills are named anywhere, so 23 (Java, Retrofit, LangChain, Git, SQL, ...) show as dim "toolkit" skills with no "Used in" list. **To connect them, add `"stack": ["Retrofit", "Coroutines & Flow", ...]` to the relevant job or project in `data/portfolio-data.json`** (use the exact skill names from `skills`).
 - Hub link: `focusSkill(name)` / the `focus-skill` window event selects a skill on the map and scrolls to it; project and certificate chips use it.
 - Not verified here: the reduced-motion paths (the test browser can't emulate the setting); they're the code paths noted in Architecture.md.
@@ -69,4 +69,6 @@ Branch `feat/creative-sections`. Plan: Implementation-Plan.md Step 7; checklist:
 ## Feedback round on creative sections (2026-10-28)
 Checklist: Tasks.md Phase 7.
 - Wallet (`fix/wallet-motion`, merged into `dev`): the "wacky" motion was spring `layout` animations on every card plus the title changing size on open. Now one eased height + fade tween; title size fixed. Measured: closing and opening cards move together, no overshoot, settled in ~0.35 s.
-- Constellation: user finds it jumbled, weakly connected and hard to classify. Options proposed to the user; waiting on their pick (see Tasks F2).
+- Constellation -> **skill wheel** (`feat/skill-wheel`, merged into `dev`): `SkillConstellation.tsx` renamed to `SkillWheel.tsx`. Categories and skills come from `portfolio-data.json` (`RESUME_DATA.skills` is now the raw `Record<string, string[]>`), so a new category key or skill shows up with no code change. Slice order = key order in the JSON (currently Data, Backend, Cloud & Tools, AI & ML, Mobile).
+- Projects progress bar: Tailwind v4's `scale-x-*` sets the CSS `scale` property, which multiplied with the inline `transform: scaleX()` and capped the bar at 4%. Now inline transform only. Verified 4% -> 50% -> 100% across the pinned scroll.
+- Still open: 23 of 37 skills have no "Used in" links until `stack` fields are added (offered to draft them).

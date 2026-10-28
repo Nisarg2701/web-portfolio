@@ -1,5 +1,5 @@
 import { Hero } from "@/components/Hero";
-import { SkillConstellation } from "@/components/SkillConstellation";
+import { SkillWheel } from "@/components/SkillWheel";
 import { ExperienceStack } from "@/components/ExperienceStack";
 import { ProjectsList } from "@/components/ProjectsList";
 import { Certifications } from "@/components/Certifications";
@@ -13,7 +13,7 @@ export default function Home() {
     <main className="w-full">
       <Navbar />
       <Hero />
-      <SkillConstellation />
+      <SkillWheel />
       <ExperienceStack />
       <ProjectsList />
       <Certifications />
