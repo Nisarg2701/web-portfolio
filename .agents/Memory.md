@@ -25,6 +25,8 @@
 
 11. **2026-10-28 hero weight + bento back:** skills back to the original bento (user will propose an idea later; don't push skill-section redesigns meanwhile). Phones: no glances, tap greets, 2.7 MB of frames. Glance lag fixed the same day with the user's magenta-background glance clip (frames 223-257).
 
+12. **2026-10-28 greeting paths:** user wants no bridge 3 when greeting from the right, and no double smile from the left. Hero paths moved to `heroFrames.ts` with a node check script.
+
 ## Workflow Preferences
 - Work on a feature branch cut from `dev`, merge back into `dev` once verified. Pushing is a separate, explicit step.
 - Read and update the `.agents` docs before starting (plan + tasks) and again when done (Memory + handoff).
