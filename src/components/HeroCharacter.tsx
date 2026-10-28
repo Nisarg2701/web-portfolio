@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DONE, G0, GREET, IDLE, LAST, POINT, WAVE, glance, greeting, range } from "@/components/heroFrames";
+import { FRAMES, PHONE, POINT, START, WAVE, arrive, frameOf, step, type Goal } from "@/components/heroFrames";
 
-const FPS = 24; // every frame of the clips, at their own speed
+const FRAME_MS = 1000 / 24; // every frame of the clips, at their own speed
 // bump whenever the frames change: it's in the URLs (frames are HTTP-cached for a week, see
 // next.config.ts) and in the Cache Storage name (older caches are deleted)
-const VERSION = 8;
+const VERSION = 9;
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp?v=${VERSION}`;
@@ -15,11 +15,11 @@ const CACHE = `hero-frames-v${VERSION}`;
 const POOL = 6; // parallel downloads
 
 type Zone = "left" | "center" | "right";
-type Mode = "idle" | "left" | "right" | "greet" | "done";
 
-const MESSAGES: Partial<Record<Mode, string>> = {
+const MESSAGES: Partial<Record<Goal, string>> = {
   left: "Anyone here on the left?",
   right: "Anyone here on the right?",
+  greet: "Hey, it's you!",
 };
 
 /** `scrollTo`: id of the element to glide to once the greeting finishes (first time only). */
@@ -66,6 +66,8 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
         img.onerror = err;
         img.src = blobUrl;
       });
+      // decoded off the main thread now, so drawing it later doesn't stall a frame
+      await img.decode().catch(() => {});
       return img;
     };
     // a frame that won't load is retried, then skipped, so the animation never stalls on it
@@ -111,30 +113,40 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       };
     }
 
-    let mode: Mode = "idle";
-    let list = IDLE;
-    let i = 0;
+    // He follows the table in heroFrames.ts towards `goal`, one frame per tick.
+    let goal: Goal = "work";
+    let node = START;
     let shown = 0;
-    let last = 0;
+    let done = false; // greeted and pointing: holds there until scrolled away
     let raf = 0;
+    let prev = 0;
+    let late = 0;
 
-    const setMode = (next: Mode, path?: number[]) => {
-      mode = next;
-      list = path ?? { idle: IDLE, left: IDLE, right: IDLE, greet: GREET, done: DONE }[next];
-      i = 0;
-      // "done" keeps the last greeting line on screen
-      if (next === "done") return;
-      setMessage(next === "greet" ? "Hey, it's you!" : next === "idle" && coarse ? "Tap me" : MESSAGES[next] ?? null);
+    // the frames he'll show next on the way to `g`, so they can be fetched first
+    const ahead = (g: Goal, count = 120) => {
+      const out: number[] = [];
+      for (let n = node, k = 0; k < count; k++) {
+        const m = step(n, g);
+        if (m === n) break;
+        out.push(frameOf((n = m)));
+      }
+      return out;
+    };
+    const aim = (g: Goal) => {
+      goal = g;
+      setMessage(MESSAGES[g] ?? (coarse ? "Tap me" : null));
+      loadAll(ahead(g)); // usually loaded already; on a fresh visit this puts them first
     };
 
     // Once he has greeted he keeps pointing until he's scrolled away (then he's back at work): every
-    // other clip has his headphones on, so there is nothing to move on to from here.
-    const enter = (zone: Zone) => {
-      if (mode === "greet" || mode === "done") return;
-      if (zone === "center") {
-        setMode("greet", greeting(shown));
-        loadAll(list); // in case these frames are still queued behind others
-      } else if (mode !== zone) setMode(zone, glance(zone, shown));
+    // other clip has his headphones on, so there is nothing to move on to from there.
+    let zoneNow: Zone | null = null;
+    const enter = (zone: Zone, again = false) => {
+      if (goal === "greet" || done) return;
+      if (zone === zoneNow && !again) return; // one reaction per visit to a zone
+      zoneNow = zone;
+      if (zone === "center") aim("greet");
+      else if (goal !== zone) aim(zone);
     };
 
     let inView = false; // mostly visible
@@ -142,7 +154,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     let glide = 0;
     // every greeting ends by gliding down to what he points at, as long as he's still on screen
     const finishGreeting = () => {
-      setMode("done");
+      done = true;
       if (!scrollTo) return;
       clearTimeout(glide);
       glide = window.setTimeout(() => {
@@ -150,39 +162,37 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       }, 900);
     };
 
-    const draw = () => {
+    const draw = (f: number) => {
+      shown = f;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(frames[shown], 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(frames[f], 0, 0, canvas.width, canvas.height);
+      setStarted(true);
     };
 
-    let drawn = false;
+    // Exactly one frame per 1/24 s. When the page is busy he slows down for a moment rather than
+    // skipping frames to catch up (skipping is what made him look like he was typing too fast).
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
+      const dt = now - (prev || now);
+      prev = now;
       if (!onScreen) return; // nothing to animate off screen
-      // time-based: when frames arrive late (slow device, throttled tab) skip ahead instead of slowing down
-      let steps = Math.min(Math.floor((now - last) / (1000 / FPS)), 6);
-      if (steps < 1) return;
-      last = now;
-      let n = shown;
-      // frames that never loaded are stepped over rather than waited on
-      while (steps-- > 0 && (ready(list[i]) || failed.has(list[i]))) {
-        if (ready(list[i])) n = list[i];
-        i++;
-        if (mode === "greet" && n === WAVE) setMessage("Hiiii!");
-        if (mode === "greet" && n === POINT) setMessage("Check out the portfolio");
-        if (i >= list.length) {
-          if (mode === "greet") finishGreeting();
-          else if (mode !== "idle" && mode !== "done") setMode("idle");
-          else i = 0;
-        }
+      if (!shown) {
+        if (ready(frameOf(node))) draw(frameOf(node));
+        return;
       }
-      if (n === shown) return;
-      shown = n;
-      draw();
-      if (!drawn) {
-        drawn = true;
-        setStarted(true);
-      }
+      late = Math.min(late + dt, FRAME_MS * 2);
+      if (late < FRAME_MS || done) return;
+      const next = step(node, goal);
+      const f = frameOf(next);
+      if (next === node || !(ready(f) || failed.has(f))) return; // wait for it to arrive
+      late -= FRAME_MS;
+      node = next;
+      if (ready(f)) draw(f); // a frame that never loaded is stepped over, keeping the last one up
+      if (goal === "greet" && f === WAVE) setMessage("Hiiii!");
+      if (goal === "greet" && f === POINT) setMessage("Check out the portfolio");
+      if (goal === "greet" && step(node, "greet") === node) finishGreeting();
+      const g = arrive(f, goal);
+      if (g !== goal) aim(g);
     };
     raf = requestAnimationFrame(tick);
 
@@ -220,7 +230,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     // a click on the image's left/right third glances that way, the middle greets; on phones any tap greets
     const onTap = (e: MouseEvent) => {
       clearTimeout(dwell);
-      enter(small ? "center" : zoneAt(e.clientX));
+      enter(small ? "center" : zoneAt(e.clientX), true);
     };
     canvas.addEventListener("click", onTap);
 
@@ -230,19 +240,23 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       ([e]) => {
         onScreen = e.isIntersecting;
         inView = e.intersectionRatio >= 0.6;
-        if (!inView && mode === "done") setMode("idle");
+        if (!inView && done) {
+          done = false;
+          node = START;
+          if (ready(1)) draw(1);
+          aim("work");
+        }
       },
       { threshold: [0, 0.6] },
     );
     io.observe(canvas);
 
-    // Load in stages so each batch gets the bandwidth: the working loop first, then the greeting,
-    // then the glances.
+    // Load in stages so each batch gets the bandwidth: the working loop and greeting (all phones
+    // ever show), then the glances and the bridges from them.
     (async () => {
-      await loadAll(IDLE);
-      await loadAll(GREET);
-      if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
-      if (!small) await loadAll(range(G0, LAST)); // glances and the bridges from them
+      await loadAll(PHONE);
+      if (!cancelled && coarse && goal === "work") setMessage("Tap me");
+      if (!small) await loadAll(Array.from({ length: FRAMES }, (_, k) => k + 1).filter((f) => !PHONE.includes(f)));
     })();
 
     return () => {
@@ -283,8 +297,8 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       />
       <canvas
         ref={canvasRef}
-        width={1374}
-        height={978}
+        width={1280}
+        height={911}
         role="img"
         aria-label="Animated illustration of Nisarg working at a laptop, who looks up, waves and points down to the portfolio"
         className="relative block h-auto w-full cursor-pointer [mask-image:linear-gradient(to_bottom,black_80%,transparent)]"

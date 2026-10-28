@@ -82,3 +82,9 @@
 - [x] P8 User: back to natural speed (every frame at 24 fps), no repeated frames (no bounce holds, no ping-pong at the end, no rewind-to-wave)
 - [x] P9 User review at 24 fps: found a bug (junk fast typing + headphones coming off whenever he returns to work, on a fresh load)
 - [ ] P10 Next agent: delete all old frames, rebuild optimally from the user's 5 clips, fix the return-to-work bug (see handoff "NEXT TASK")
+
+## Phase 10: Hero rebuild, shortest-path player (2026-10-28, branch `feat/hero-graph-rebuild`)
+- [x] R1 Build script: key all 5 clips, measure seamless cuts, per-goal shortest-path table, export only reachable frames (1280 + 800)
+- [x] R2 Player follows the table at a steady 24 fps (no catch-up skipping), decode before ready
+- [x] R3 Path check script rewritten for the table; offline render of real interaction sessions
+- [x] R4 Verify (lint/tsc/build, live load), docs, merge into dev
