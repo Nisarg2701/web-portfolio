@@ -23,7 +23,7 @@
 
 10. **2026-10-28:** added AI tools (ChatGPT, Claude, Gemini, Nano Banana, DALL-E, Omni, Veo) as a new category plus Vercel, Supabase, Redis. User still not happy with the wheel's look; alternatives listed in Ideas.md (round 2). The user likes the old bento's clear categories.
 
-11. **2026-10-28 hero weight + bento back:** skills back to the original bento (user will propose an idea later; don't push skill-section redesigns meanwhile). Phones: no glances, tap greets, 2.7 MB of frames. Glance lag diagnosed; user is generating a working -> right -> left clip on a magenta background.
+11. **2026-10-28 hero weight + bento back:** skills back to the original bento (user will propose an idea later; don't push skill-section redesigns meanwhile). Phones: no glances, tap greets, 2.7 MB of frames. Glance lag fixed the same day with the user's magenta-background glance clip (frames 223-257).
 
 ## Workflow Preferences
 - Work on a feature branch cut from `dev`, merge back into `dev` once verified. Pushing is a separate, explicit step.

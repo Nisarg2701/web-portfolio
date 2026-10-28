@@ -64,4 +64,4 @@
 - [x] H2 Phones: no glances. Any tap greets; load only the working loop + bridge 3 + greeting
 - [x] H3 Delete frames nothing plays (113-120)
 - [x] H4 Glance lag, measured: right turn spends ~1.9 s reaching its peak (bridge 1 starts slowly and stalls mid-way; left turn takes 0.67 s), and right -> left ends in ~0.5 s of near-still frames (the original blink section played backwards). Fix = new user-generated clip working -> right -> left. Prepare see-through references + prompt with a magenta key background.
-- [ ] H5 Integrate the new glance clip once delivered (replaces bridge 1 and the reversed take for right -> left)
+- [x] H5 Integrate the new glance clip (frames 223-257; replaces bridge 1 and take frames 23-43)
