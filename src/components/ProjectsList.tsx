@@ -5,150 +5,138 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { RESUME_DATA } from "@/data/resume";
+import { focusSkill, skillsIn } from "@/data/skillGraph";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 
+// lines the first slide up with the page's max-w-7xl content edge
+const EDGE = "px-6 md:px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]";
+
 export function ProjectsList() {
-  const containerRef = useRef<HTMLElement>(null);
-  const projectRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRef = useRef<HTMLElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  const setBar = (p: number) => {
+    if (barRef.current) barRef.current.style.transform = `scaleX(${Math.max(p, 0.04)})`;
+  };
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    const section = sectionRef.current!;
+    const viewport = viewportRef.current!;
+    const track = trackRef.current!;
 
-    // Animate only when the visitor allows motion; revert() undoes just these tweens/triggers.
+    // Desktop with motion allowed: pin the section and pan the slides sideways as the page scrolls.
+    // Otherwise (phones, reduced motion) the track stays a native swipe carousel.
     const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      projectRefs.current.forEach((el) => {
-        if (!el) return;
-        
-        const imgContainer = el.querySelector(".img-container");
-        const img = el.querySelector("img");
-        const textCard = el.querySelector(".text-card");
-        
-        if (imgContainer) {
-          gsap.fromTo(imgContainer, 
-            { clipPath: "inset(10% 10% 10% 10% round 2rem)", scale: 0.95 },
-            { 
-              clipPath: "inset(0% 0% 0% 0% round 2rem)", 
-              scale: 1,
-              duration: 1.5, 
-              ease: "power3.inOut",
-              scrollTrigger: {
-                trigger: el,
-                start: "top 80%",
-                toggleActions: "play none none reverse"
-              }
-            }
-          );
-        }
-  
-        if (img) {
-          gsap.set(img, { yPercent: -10 });
-          gsap.to(img, {
-            yPercent: 10,
-            ease: "none",
-            scrollTrigger: {
-              trigger: el,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true,
-            },
-          });
-        }
-  
-        if (textCard) {
-          gsap.fromTo(textCard,
-            { opacity: 0, y: 40, backdropFilter: "blur(0px)" },
-            {
-              opacity: 1,
-              y: 0,
-              backdropFilter: "blur(16px)",
-              duration: 1.2,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: el,
-                start: "top 70%",
-                toggleActions: "play none none reverse",
-              },
-              delay: 0.2
-            }
-          );
-        }
+    mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+      const distance = () => track.scrollWidth - viewport.clientWidth;
+      gsap.set(viewport, { overflow: "hidden" });
+      gsap.to(track, {
+        x: () => -distance(),
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: () => `+=${distance()}`,
+          pin: true,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => setBar(self.progress),
+        },
       });
     });
-
     return () => mm.revert();
   }, []);
 
+  const onSwipe = () => {
+    const v = viewportRef.current;
+    if (v && v.scrollWidth > v.clientWidth) setBar(v.scrollLeft / (v.scrollWidth - v.clientWidth));
+  };
+
   return (
-    <section id="projects" ref={containerRef} className="py-32 px-6 max-w-7xl mx-auto">
-      <div className="mb-24 text-center md:text-left">
+    <section id="projects" ref={sectionRef} className="flex flex-col justify-center py-24 md:min-h-[100dvh] md:py-16">
+      <div className={`mb-10 md:mb-12 ${EDGE}`}>
         <h2 className="text-sm tracking-[0.2em] uppercase font-mono text-emerald-500 mb-4">Selected Works</h2>
         <h3 className="text-4xl md:text-6xl font-semibold text-zinc-50 tracking-tighter">Featured Projects</h3>
       </div>
 
-      <div className="flex flex-col gap-32">
-        {RESUME_DATA.projects.map((project, idx) => {
-          const isEven = idx % 2 === 0;
-
-          return (
-            <div 
-              key={idx} 
-              ref={(el) => { projectRefs.current[idx] = el; }}
-              className="relative w-full min-h-[500px] flex items-center"
+      <div
+        ref={viewportRef}
+        onScroll={onSwipe}
+        className="snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <div ref={trackRef} className={`flex w-max gap-5 md:gap-8 ${EDGE}`}>
+          {RESUME_DATA.projects.map((project, idx) => (
+            <article
+              key={project.name}
+              className="group grid w-[85vw] shrink-0 snap-center overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 md:w-[min(72vw,960px)] md:grid-cols-[1.15fr_1fr]"
             >
-              {/* Massive Background Image Container */}
-              <div className={`img-container absolute top-0 ${isEven ? 'right-0' : 'left-0'} w-full lg:w-[70%] h-[350px] lg:h-[450px] rounded-[2rem] overflow-hidden bg-zinc-900 border border-zinc-800 shadow-2xl`}>
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/20 opacity-90 z-10 pointer-events-none" />
-                {project.image ? (
+              <div className="relative aspect-[16/10] overflow-hidden bg-zinc-950 md:aspect-auto md:min-h-[440px]">
+                {project.image && (
                   <Image
                     src={project.image}
                     alt={project.name}
                     fill
-                    className="object-cover scale-125 origin-center"
-                    sizes="(max-width: 1024px) 100vw, 70vw"
+                    sizes="(max-width: 768px) 85vw, 40vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-700 font-mono text-sm">
-                    No Image Provided
-                  </div>
                 )}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:via-transparent md:to-zinc-900/60" />
               </div>
 
-              {/* Floating Glassmorphic Text Card */}
-              <div className={`text-card relative z-20 w-[90%] md:w-2/3 lg:w-[45%] mx-auto lg:mx-0 ${isEven ? 'lg:mr-auto' : 'lg:ml-auto'} mt-[250px] lg:mt-0 bg-zinc-900/60 hover:bg-zinc-900/80 backdrop-blur-xl border border-zinc-700/50 rounded-[2rem] p-8 md:p-12 shadow-2xl transition-colors duration-500`}>
-                <div className="flex items-center justify-between mb-6">
-                  <p className="font-mono text-emerald-400 text-xs tracking-widest uppercase">
-                    {project.type}
-                  </p>
-                  <div className="flex gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
-                    <div className="w-2 h-2 rounded-full bg-emerald-500/50" />
-                  </div>
+              <div className="flex flex-col p-6 md:p-10">
+                <p className="font-mono text-5xl font-semibold tracking-tighter text-zinc-800 md:text-7xl">
+                  {String(idx + 1).padStart(2, "0")}
+                </p>
+                <h4 className="mt-4 text-2xl font-semibold leading-tight tracking-tight text-zinc-50 md:text-3xl">
+                  {project.name}
+                </h4>
+                <p className="mt-4 text-sm leading-relaxed text-zinc-400 md:text-base">{project.description}</p>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {project.type.split(",").map((t) => {
+                    const tech = t.trim();
+                    const skill = skillsIn(tech)[0];
+                    return skill ? (
+                      <button
+                        key={tech}
+                        onClick={() => focusSkill(skill)}
+                        title={`See ${skill} on the skill map`}
+                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs text-emerald-300 transition-colors hover:bg-emerald-500/20 active:scale-[0.98]"
+                      >
+                        {tech}
+                      </button>
+                    ) : (
+                      <span key={tech} className="rounded-lg border border-zinc-700 px-2.5 py-1 font-mono text-xs text-zinc-400">
+                        {tech}
+                      </span>
+                    );
+                  })}
                 </div>
 
-                <h3 className="text-3xl lg:text-4xl font-semibold text-zinc-50 mb-6 leading-tight">
-                  {project.name}
-                </h3>
-                
-                <p className="text-zinc-300 text-base md:text-lg leading-relaxed mb-8">
-                  {project.description}
-                </p>
-                
                 {project.link && (
                   <a
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-center gap-3 bg-zinc-100 text-zinc-950 px-6 py-3 rounded-full font-medium tracking-wide transition-all hover:bg-emerald-500"
+                    className="group/link mt-auto inline-flex items-center gap-2 self-start pt-8 text-sm font-semibold text-zinc-100 transition-colors hover:text-emerald-400"
                   >
-                    <span>View Project</span>
-                    <ArrowUpRight weight="bold" className="w-4 h-4 transition-transform group-hover:rotate-45" />
+                    View on GitHub
+                    <ArrowUpRight weight="bold" className="h-4 w-4 transition-transform group-hover/link:rotate-45" />
                   </a>
                 )}
               </div>
-            </div>
-          );
-        })}
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className={`mt-8 ${EDGE}`}>
+        <div className="h-px w-full max-w-xs overflow-hidden bg-zinc-800">
+          <div ref={barRef} className="h-full origin-left scale-x-[0.04] bg-emerald-400" />
+        </div>
       </div>
     </section>
   );

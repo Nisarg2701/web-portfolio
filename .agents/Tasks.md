@@ -41,3 +41,12 @@
 - [x] T7 WhatsApp floating button: QR + chat button on desktop, direct link on mobile; WhatsApp row in contact dialog
 - [x] T8 Ideas.md: creative directions for Skills, Projects, Certifications
 - [x] T9 Verify (desktop + mobile), lint/typecheck/build, update Memory + handoff, merge into `dev`
+
+## Phase 6: Creative sections (2026-10-28)
+- [x] T0 Bridge 3: clear the white patches in the headband/ear-cup gaps (cut-out keeps holes ringed by hair/headphones transparent)
+- [x] T1 `skillGraph.ts`: works, skill <-> work links, skill <-> skill edges
+- [x] T2 Skill constellation (desktop SVG + phone chips, shared detail panel, entrance animation, reduced motion)
+- [x] T3 Projects horizontal pinned pan (desktop) / swipe carousel (phones, reduced motion)
+- [x] T4 Credential wallet for certifications
+- [x] T5 `focus-skill` hub link from project and certificate chips
+- [x] T6 Verify desktop + phone + reduced motion, lint/typecheck/build; update docs; merge into `dev`

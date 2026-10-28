@@ -38,3 +38,14 @@ Feedback after the navbar/hero fixes. Tasks are tracked in [Tasks.md](Tasks.md) 
 5. **Smooth section scroll.** Navbar links scroll smoothly (instant under reduced motion) instead of jumping. Move the navbar's scroll handling to Motion's `useScroll` (taste skill bans raw window scroll listeners).
 6. **WhatsApp.** Floating WhatsApp button (bottom-right, back-to-top sits above it). Desktop: opens a card with a QR code (static SVG in `public/`, generated once, no new dependency) and a "Chat on WhatsApp" button. Mobile: no QR, the button opens WhatsApp directly. Also a WhatsApp row in the contact dialog.
 7. **Ideas only (no build yet).** Creative directions for Skills, Projects and Certifications in [Ideas.md](Ideas.md), for the user to pick from.
+
+## Step 7: Creative sections (2026-10-28, branch `feat/creative-sections`)
+The user picked the recommended combination from [Ideas.md](Ideas.md). Tasks: [Tasks.md](Tasks.md) Phase 6.
+
+**Shared data (`src/data/skillGraph.ts`).** "Works" = jobs, projects and certifications. A skill links to a work when its name (parentheses stripped, whole word, case-insensitive) appears in that work's text: job role + details, project tech + description, certificate name + description. Nothing new is added to `portfolio-data.json`; the links come from what it already says. Two skills are connected when they share a work.
+
+1. **Skill constellation** (replaces `BentoGrid`, keeps `#skills`). Desktop: SVG star map, one cluster per skill category (mobile, AI/ML, backend, data, tools), node size = number of works, lines = shared works. Hover/focus/tap a skill: its neighbours and lines light up, others dim, and a panel lists where it was used (job / project / certificate). Phones: the same skills as tappable chips by category, with the same panel. Entrance: nodes and lines draw in once, in sequence (skipped under reduced motion).
+2. **Projects horizontal pan** (replaces the alternating cards, keeps `#projects`). Desktop with motion allowed: section pins and the slides pan sideways with scroll, with a progress bar (GSAP ScrollTrigger, taste skill 5.B). Phones or reduced motion: a native swipe carousel with scroll-snap. Each slide: image, index, name, description, tech chips; a chip that is a known skill jumps to the constellation with that skill selected.
+3. **Credential wallet** (replaces the certificate rows, keeps `#certifications`). Certificates as overlapping wallet cards; one is open at a time (accordion semantics, `aria-expanded`), showing the certificate image, description, related skills and a Verify link. Motion `layout` animates opening; reduced motion makes it instant.
+
+Hub link: a `focus-skill` window event (skill name) lets project and certificate chips select a skill in the constellation and scroll to it.
