@@ -17,6 +17,8 @@
 6. **2026-10-28 hero + nav:** hero fixes for mobile (frame cache, taps, replay), floating top navbar, back-to-top.
 7. **2026-10-28 polish round 2:** brand logo in the navbar, emerald focus ring, smooth section links, Connect link, faster experience-card fade, WhatsApp button (QR on desktop only). Creative directions for Skills/Projects/Certs are in `.agents/Ideas.md`, awaiting the user's pick. Hero bridge 3 integrated the same day; after review it plays at 2 s (even frames 176-222) with a cleaner cut-out (no white outline).
 
+8. **2026-10-28 creative sections (in progress):** user approved skill constellation + horizontal project pan + credential wallet (Ideas.md recommendation). Links between skills and work are derived from existing text, not new data.
+
 ## Workflow Preferences
 - Work on a feature branch cut from `dev`, merge back into `dev` once verified. Pushing is a separate, explicit step.
 - Read and update the `.agents` docs before starting (plan + tasks) and again when done (Memory + handoff).

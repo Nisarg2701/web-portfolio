@@ -57,3 +57,6 @@ Branch `feat/nav-experience-whatsapp`. Plan: Implementation-Plan.md Step 6; chec
 - Cut-out pipeline: `.agents/scripts/bridge_cutout.py` (the scripts behind the original 174 frames weren't kept). It crops the shared box (278, 27, 1374x978), keys out the off-white background and fills only small holes, so gaps such as inside the headband stay transparent. Usage is in its docstring.
 - Reference stills and prompt used: `.agents/bridge-frames/bridge3_*` (untracked, like the others).
 - The first cut had a light grey outline (the generator's sharpening halo, plus edge pixels made too opaque). `bridge_cutout.py` now takes edge alpha from the colour of the solid interior next to them and drops halo pixels; outline rim pixels went from ~800 to under 45 per frame (shipped frames: ~63). `CACHE` bumped to `hero-frames-v2` so browsers drop the old versions.
+
+## In progress (2026-10-28): creative sections
+Branch `feat/creative-sections` (from `dev`). Plan: Implementation-Plan.md Step 7; checklist: Tasks.md Phase 6. Also on this branch: bridge 3 gap fix (white patches between headband/ear cups and head), frame cache `hero-frames-v3`.
