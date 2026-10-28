@@ -1,4 +1,4 @@
-import rawData from "../../data/portfolio-data.json";
+import rawData from "./portfolio-data.json";
 
 type Job = { start?: string; end?: string };
 

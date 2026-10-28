@@ -1,5 +1,5 @@
 r"""Build the hero animation from the five magenta clips: frames in public/hero-frames and the
-playback table in src/components/heroGraph.json.
+playback table in src/components/hero/heroGraph.json.
 
 Usage: python .agents/scripts/build_hero_frames.py LOOP GREETING GLANCES BRIDGE_RIGHT BRIDGE_LEFT [--dry] [--keep DIR]
 (--keep: keyed frames and measurements are saved in DIR and reused on the next run, which then takes
@@ -15,7 +15,8 @@ How it works
    the next node on the quickest seamless way to that goal. The player just follows that table at
    24 fps, so every reaction starts at once from wherever he is, and every path is seamless by
    construction.
-5. Only frames some path can show are exported (full 1280px + 800px sm/), numbered 1..N.
+5. Only frames some path can show are exported (1280px), numbered 1..N; sm/ (800px) only has the
+   frames phones can reach (loop and greeting).
 """
 import heapq
 import os
@@ -35,7 +36,7 @@ from magenta_key import key  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "public" / "hero-frames"
-TABLE = ROOT / "src" / "components" / "heroGraph.json"
+TABLE = ROOT / "src" / "components" / "hero" / "heroGraph.json"
 SIZES = {"": (1280, 911), "sm/": (800, 569)}  # the crop box's 1518x1080 aspect; shown at most 640 CSS px wide
 QUALITY = 78
 ALPHA_QUALITY = 60  # lossy edges: ~20% smaller, average alpha error under 0.1/255
@@ -221,10 +222,14 @@ def export(g, keyed_dir):
         (OUT / d).mkdir(parents=True, exist_ok=True)
         for f in (OUT / d).glob("frame_*.webp"):
             f.unlink()
+    phone = {n[0] for n in g["phone"]}
+
     def one(f):
         c = g["clip"][f]
         k = cv2.cvtColor(cv2.imread(str(keyed_dir / f"{c}_{f - g['src'](CLIPS[c], 0):04d}.png"), cv2.IMREAD_UNCHANGED), cv2.COLOR_BGRA2RGBA)
         for d, (w, h) in SIZES.items():
+            if d == "sm/" and f not in phone:
+                continue  # small screens never show it
             Image.fromarray(resize(k, w, h)).save(OUT / d / f"frame_{ids[f]:03d}.webp", quality=QUALITY, alpha_quality=ALPHA_QUALITY, method=6)
 
     # resizing and webp encoding release the GIL, so threads use every core

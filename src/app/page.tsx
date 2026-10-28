@@ -1,12 +1,12 @@
-import { Hero } from "@/components/Hero";
-import { BentoGrid } from "@/components/BentoGrid";
-import { ExperienceStack } from "@/components/ExperienceStack";
-import { ProjectsList } from "@/components/ProjectsList";
-import { Certifications } from "@/components/Certifications";
-import { EducationAndLeadership } from "@/components/EducationAndLeadership";
-import { Footer } from "@/components/Footer";
-import { Navbar, BackToTop } from "@/components/Navbar";
-import { WhatsApp } from "@/components/WhatsApp";
+import { Hero } from "@/components/hero/Hero";
+import { BentoGrid } from "@/components/sections/BentoGrid";
+import { ExperienceStack } from "@/components/sections/ExperienceStack";
+import { ProjectsList } from "@/components/sections/ProjectsList";
+import { Certifications } from "@/components/sections/Certifications";
+import { EducationAndLeadership } from "@/components/sections/EducationAndLeadership";
+import { Footer } from "@/components/layout/Footer";
+import { Navbar, BackToTop } from "@/components/layout/Navbar";
+import { WhatsApp } from "@/components/layout/WhatsApp";
 
 export default function Home() {
   return (

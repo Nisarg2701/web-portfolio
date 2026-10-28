@@ -52,7 +52,7 @@ Section by section details: [Architecture.md](Architecture.md).
 - **Footer / contact dialog** (`Footer.tsx`): resume, email, phone, WhatsApp; also opened by the navbar's "Get In Touch" (`open-contact` event).
 
 ## Hero animation today
-- `build_hero_frames.py` keys all 5 clips, measures every frame against every other (128px premultiplied copies; same pose in two clips differs by ~0.5) and allows a cut between clips only where the two frames differ no more than max(1.2, the motion around them). Nodes are (frame, direction): only the glance clip plays backwards, and only turns around on still frames (the holds). A Dijkstra search per goal (work, right, left, greet) gives every node its next node on the quickest seamless way there: `src/components/heroGraph.json` (17 KB). Only frames some path can show are exported: 576 frames, 1280x911 desktop (22 MB; canvas is shown at most 640 CSS px wide) + 800px `sm/` (phones load only their 318 reachable frames, 6.7 MB). WebP q78, lossy alpha 60, method 6.
+- `build_hero_frames.py` keys all 5 clips, measures every frame against every other (128px premultiplied copies; same pose in two clips differs by ~0.5) and allows a cut between clips only where the two frames differ no more than max(1.2, the motion around them). Nodes are (frame, direction): only the glance clip plays backwards, and only turns around on still frames (the holds). A Dijkstra search per goal (work, right, left, greet) gives every node its next node on the quickest seamless way there: `src/components/heroGraph.json` (17 KB). Only frames some path can show are exported: 576 frames, 1280x911 desktop (22 MB; canvas is shown at most 640 CSS px wide) + 800px `sm/` holding only the 318 frames small screens can reach (6.7 MB). The path check fails if any frame is deployed that nothing shows. WebP q78, lossy alpha 60, method 6.
 - `heroFrames.ts` wraps the table (`step(node, goal)`, `arrive`); `HeroCharacter.tsx` follows it. `VERSION` = 9 (in the URLs and the Cache Storage name; bump on any frame change). Frames 1-94 are the working loop (`LOOP`).
 - Reactions start at once from wherever he is: from the hub, right look 5.3 s round trip (hold ~2.6 s), left 4.1 s (hold ~2.6 s), greeting reaches the look-up in ~1 s via measured cuts loop -> glance typing -> greeting. Side to side sweeps across directly; greeting from a side goes through that side's bridge (right: bridge 7 -> 68, into greeting 33; left: 11 -> 64, into greeting 46).
 - Desktop: cursor zones (left/right third, one reaction per entry into a zone; centre after 250 ms dwell), click reacts again. Phones: tap greets, no glances. After greeting he holds the point until scrolled away, then cuts back to frame 1 at work. Reduced motion: frame 1 only.
@@ -61,10 +61,9 @@ Section by section details: [Architecture.md](Architecture.md).
 
 ## Tools and scripts
 - `.agents/scripts/magenta_key.py`: key a clip off flat magenta into the hero crop box (208, 0, 1518x1080). `.agents/scripts/build_hero_frames.py` builds frames + playback table from the 5 clips (see Hero animation today).
-- `.agents/scripts/bridge_cutout.py`: older matte for off-white backgrounds (headband-gap and halo handling); only needed for non-magenta footage.
 - `.agents/scripts/check_hero_paths.ts`: playback table check (see above).
 - ffmpeg/ffprobe are on PATH; Python has PIL, OpenCV, numpy. `npx tsx` is not installed (it hangs waiting to install); use `node --experimental-strip-types` (Node 22).
-- `.agents/bridge-frames/` (untracked): reference stills for all generated clips, incl. `fresh/` (hub) and `glance/`.
+- `.agents/bridge-frames/fresh/` (untracked): the 5 source clips, the hub/side reference stills and the session preview. Older reference images were deleted in the 2026-10-28 cleanup.
 
 ## Dev notes
 - `npm run dev` (port 3000); `.claude/launch.json` also has `prod-preview` (`next start -p 3005`).
