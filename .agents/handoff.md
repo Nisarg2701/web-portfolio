@@ -95,3 +95,6 @@ Branch `fix/hero-weight-bento`. Checklist: Tasks.md Phase 8.
 - From the left: bridge 2 only up to 157 (start of the smile) -> greeting's smile at 49, size-matched (1.0325, -22.3, -17.4; frame difference 5.3 -> 2.2). Saves ~1.5 s and the double smile.
 - Deleted frames 158-174 (bridge 2's held smile) and 44-46 (old take entry). Desktop 166 frames / 7.43 MB; phones 104 / 2.64 MB; nothing unplayed on disk.
 - Live timing couldn't be watched (the preview window was throttled to ~1 frame/s); the path check and per-frame motion measurements cover it.
+
+## Planned (2026-10-28): fresh hero clips
+Plan: Implementation-Plan.md Step 9; checklist: Tasks.md Phase 9. Waiting on the user's pilot clip (glances). Hub reference: `.agents/bridge-frames/fresh/hub_working_magenta.png` (untracked folder). A half-done attempt to bake size corrections into frames 223-257 and 139-157 was abandoned and fully reverted; `dev` is unchanged since `20900b3`.

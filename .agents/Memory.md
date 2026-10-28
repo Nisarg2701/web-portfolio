@@ -27,6 +27,8 @@
 
 12. **2026-10-28 greeting paths:** user wants no bridge 3 when greeting from the right, and no double smile from the left. Hero paths moved to `heroFrames.ts` with a node check script.
 
+13. **2026-10-28 fresh clips:** after the size-jump issue, the user chose to regenerate the whole hero animation on magenta around one shared hub frame rather than keep patching joins. Don't patch the old frame set further.
+
 ## Workflow Preferences
 - Work on a feature branch cut from `dev`, merge back into `dev` once verified. Pushing is a separate, explicit step.
 - Read and update the `.agents` docs before starting (plan + tasks) and again when done (Memory + handoff).

@@ -67,3 +67,11 @@
 - [x] H5 Integrate the new glance clip (frames 223-257; replaces bridge 1 and take frames 23-43)
 - [x] H6 Greeting from the right no longer plays bridge 3 (glance clip turns him to centre and blinks at 239, bridge 2 continues from its own blink at 146)
 - [x] H7 Greeting from the left: cut bridge 2's held smile (158-174) and hand over at 157 -> 49 (greeting's own smile); frames 158-174 and 44-46 deleted
+
+## Phase 9: Fresh hero clips (2026-10-28)
+- [x] P0 Plan the clip set around one hub frame; prepare the hub reference and the pilot prompt
+- [ ] P1 User generates the pilot (glances clip); check hub match, size drift, background flatness
+- [ ] P2 User generates the working loop and greeting clips (prompts adjusted from the pilot if needed)
+- [ ] P3 Key, cut to segments, export frames (full + sm), delete the old frame set
+- [ ] P4 Rewrite the player around hub segments (drop WARPS / SEAMLESS / bridge special cases); keep the path check script
+- [ ] P5 Verify desktop + phone, update docs, merge into dev

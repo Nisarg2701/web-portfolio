@@ -56,3 +56,18 @@ The constellation read as jumbled (invisible groups, random-looking spiral, tang
 - **Desktop:** SVG wheel. Each group is a labelled arc slice; skills sit on the rim with radial labels; node size = number of works. Picking a skill (hover/focus/click) draws curved links through the middle to the skills it shares work with, dims the rest, shows its name in the centre and fills the side panel. Unpicked links stay hidden, so no spaghetti.
 - **Phones:** grouped chips (same dynamic groups) + the same panel.
 - Also: projects progress bar fix (Tailwind v4's `scale-x-*` uses the CSS `scale` property, which multiplied with the inline `transform: scaleX()` and kept the bar near empty).
+
+## Step 9: Fresh hero clips (2026-10-28, planned)
+The current hero is stitched from one original take plus three generated bridges and a glance clip, each with slightly different framing. That needs size-matching at the joins (the source of the visible "bigger, then suddenly smaller" jumps) and a lot of special-case path code. The user decided to regenerate everything fresh on magenta and rebuild the frames and the player around them.
+
+**Principle: one hub frame.** Every clip starts (and the loop and glance clips also end) on the same reference image, `.agents/bridge-frames/fresh/hub_working_magenta.png` (working, eyes on the laptop). All joins then happen on identical frames: no size matching, no crossfades, no bridge clips.
+
+**Clips (all 1920x1080, 24 fps, flat magenta #FF00FF background, locked camera, same size and position as the hub):**
+1. **Glances (pilot), ~8 s:** hub -> look right, short hold -> swing across to look left, short hold -> back to the hub. First and last frame = hub.
+2. **Working loop, ~4 s:** hub -> typing, small natural movements -> hub. First and last frame = hub.
+3. **Greeting, ~10 s:** hub -> looks up at the viewer and smiles -> takes the headphones off -> waves -> points down toward the page and holds. First frame = hub.
+Optional later, only if returning to the hub before greeting from a side feels slow: two short bridges, right look -> smile and left look -> smile.
+
+**Player after the clips land:** segments cut automatically from the keyed frames (hub, right peak, left peak found by pose matching); every glance or greeting is "play segments forward or backward through the hub". Holds are done in code (repeat the peak frame), so the clips only need short holds. WARPS, SEAMLESS lists and bridge special cases go away. Phones keep only the loop and the greeting.
+
+**Pilot check before making the other two:** first and last frames must match the hub (measured, after keying); the figure must not drift in size or position through the clip; the magenta must stay flat. If drift shows up, adjust the prompt before generating the rest.
