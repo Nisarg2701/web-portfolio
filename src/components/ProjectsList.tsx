@@ -80,7 +80,7 @@ export function ProjectsList() {
   }, []);
 
   return (
-    <section ref={containerRef} className="py-32 px-6 max-w-7xl mx-auto">
+    <section id="projects" ref={containerRef} className="py-32 px-6 max-w-7xl mx-auto">
       <div className="mb-24 text-center md:text-left">
         <h2 className="text-sm tracking-[0.2em] uppercase font-mono text-emerald-500 mb-4">Selected Works</h2>
         <h3 className="text-4xl md:text-6xl font-semibold text-zinc-50 tracking-tighter">Featured Projects</h3>

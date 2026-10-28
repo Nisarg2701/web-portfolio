@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
+import { OPEN_CONTACT } from "@/components/Navbar";
 import { ArrowUpRight, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 
@@ -59,6 +60,13 @@ export function Footer() {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
+  // the navbar's "Get In Touch" opens the same dialog
+  useEffect(() => {
+    const open = () => setIsModalOpen(true);
+    window.addEventListener(OPEN_CONTACT, open);
+    return () => window.removeEventListener(OPEN_CONTACT, open);
+  }, []);
+
   // While open: lock page scroll, close on Escape, keep Tab inside the dialog, and give focus back on close.
   useEffect(() => {
     if (!isModalOpen) return;
@@ -92,7 +100,7 @@ export function Footer() {
 
   return (
     <>
-      <footer className="bg-emerald-500 text-zinc-950 py-32 px-6 mt-32 relative overflow-hidden">
+      <footer id="contact" className="bg-emerald-500 text-zinc-950 py-32 px-6 mt-32 relative overflow-hidden">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}

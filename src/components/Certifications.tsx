@@ -43,7 +43,7 @@ export function Certifications() {
   }, []);
 
   return (
-    <section className="py-32 px-6 max-w-5xl mx-auto">
+    <section id="certifications" className="py-32 px-6 max-w-5xl mx-auto">
       <div className="mb-20 text-center">
         <h2 className="text-sm tracking-[0.2em] uppercase font-mono text-emerald-500 mb-4">Verified Milestones</h2>
         <h3 className="text-4xl md:text-5xl font-semibold text-zinc-50 tracking-tighter">Featured Certifications</h3>

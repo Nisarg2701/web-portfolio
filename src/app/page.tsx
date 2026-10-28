@@ -5,10 +5,12 @@ import { ProjectsList } from "@/components/ProjectsList";
 import { Certifications } from "@/components/Certifications";
 import { EducationAndLeadership } from "@/components/EducationAndLeadership";
 import { Footer } from "@/components/Footer";
+import { Navbar, BackToTop } from "@/components/Navbar";
 
 export default function Home() {
   return (
     <main className="w-full">
+      <Navbar />
       <Hero />
       <BentoGrid />
       <ExperienceStack />
@@ -16,6 +18,7 @@ export default function Home() {
       <Certifications />
       <EducationAndLeadership />
       <Footer />
+      <BackToTop />
     </main>
   );
 }

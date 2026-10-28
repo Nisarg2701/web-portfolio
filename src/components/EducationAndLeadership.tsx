@@ -23,7 +23,7 @@ function AnimatedScore({ value }: { value: string }) {
 
 export function EducationAndLeadership() {
   return (
-    <section className="py-32 px-6 max-w-7xl mx-auto">
+    <section id="background" className="py-32 px-6 max-w-7xl mx-auto">
       <div className="mb-20 text-center md:text-left">
         <h2 className="text-4xl md:text-6xl font-semibold text-zinc-50 tracking-tighter">Background</h2>
       </div>
