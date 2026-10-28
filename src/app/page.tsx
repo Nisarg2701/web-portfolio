@@ -1,5 +1,5 @@
 import { Hero } from "@/components/Hero";
-import { BentoGrid } from "@/components/BentoGrid";
+import { SkillConstellation } from "@/components/SkillConstellation";
 import { ExperienceStack } from "@/components/ExperienceStack";
 import { ProjectsList } from "@/components/ProjectsList";
 import { Certifications } from "@/components/Certifications";
@@ -13,7 +13,7 @@ export default function Home() {
     <main className="w-full">
       <Navbar />
       <Hero />
-      <BentoGrid />
+      <SkillConstellation />
       <ExperienceStack />
       <ProjectsList />
       <Certifications />

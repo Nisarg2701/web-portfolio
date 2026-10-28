@@ -19,12 +19,12 @@ Personal portfolio of a Software & AI/ML Engineer: experience, selected projects
 | Section | What it does |
 |---|---|
 | Hero | Introduction, with years of experience worked out from the job dates |
-| Technical Arsenal | Bento grid of skills |
+| Technical Arsenal | Skill constellation: each skill linked to the jobs, projects and certificates that used it |
 | Experience | Cards that stack as you scroll |
-| Featured Projects | Large image cards with parallax and glass text panels |
-| Certifications | Certificate rows with links to each credential |
+| Featured Projects | Slides that pan sideways as you scroll (swipe on phones) |
+| Certifications | A wallet of certificate cards; open one to see it and verify it |
 | Education & Leadership | CGPA counter, leadership and languages |
-| Contact | Dialog with the resume (PDF preview on desktop), email and phone |
+| Contact | Dialog with the resume (PDF preview on desktop), email, phone and WhatsApp |
 
 Animations are turned off for visitors who have "reduce motion" enabled.
 

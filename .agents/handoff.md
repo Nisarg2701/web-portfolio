@@ -58,5 +58,10 @@ Branch `feat/nav-experience-whatsapp`. Plan: Implementation-Plan.md Step 6; chec
 - Reference stills and prompt used: `.agents/bridge-frames/bridge3_*` (untracked, like the others).
 - The first cut had a light grey outline (the generator's sharpening halo, plus edge pixels made too opaque). `bridge_cutout.py` now takes edge alpha from the colour of the solid interior next to them and drops halo pixels; outline rim pixels went from ~800 to under 45 per frame (shipped frames: ~63). `CACHE` bumped to `hero-frames-v2` so browsers drop the old versions.
 
-## In progress (2026-10-28): creative sections
-Branch `feat/creative-sections` (from `dev`). Plan: Implementation-Plan.md Step 7; checklist: Tasks.md Phase 6. Also on this branch: bridge 3 gap fix (white patches between headband/ear cups and head), frame cache `hero-frames-v3`.
+## Creative sections (2026-10-28, merged into `dev`)
+Branch `feat/creative-sections`. Plan: Implementation-Plan.md Step 7; checklist: Tasks.md Phase 6 (done). Details per component: Architecture.md (components 3, 4, 6).
+- `BentoGrid.tsx` was replaced by `SkillConstellation.tsx`; `ProjectsList.tsx` and `Certifications.tsx` were rewritten in place. Section ids are unchanged.
+- **Skill links are derived, not invented.** `src/data/skillGraph.ts` matches skill names (whole word, parentheses ignored, e.g. "Firebase (Firestore)" also matches "Firebase") in each job's role + details, project tech + description, certificate name + description. Today only 14 of 37 skills are named anywhere, so 23 (Java, Retrofit, LangChain, Git, SQL, ...) show as dim "toolkit" skills with no "Used in" list. **To connect them, add `"stack": ["Retrofit", "Coroutines & Flow", ...]` to the relevant job or project in `data/portfolio-data.json`** (use the exact skill names from `skills`).
+- Hub link: `focusSkill(name)` / the `focus-skill` window event selects a skill on the map and scrolls to it; project and certificate chips use it.
+- Not verified here: the reduced-motion paths (the test browser can't emulate the setting); they're the code paths noted in Architecture.md.
+- Bridge 3 on this branch too: holes ringed by hair/headphones stay transparent (fixed the white patches); frame cache `hero-frames-v3`.

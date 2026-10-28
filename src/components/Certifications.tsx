@@ -1,122 +1,117 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { focusSkill, skillsIn } from "@/data/skillGraph";
+import { ArrowUpRight, CaretDown, SealCheck } from "@phosphor-icons/react/dist/ssr";
 
+// each card gets its own tint so the stack reads as separate cards, all within the emerald/zinc palette
+const TINTS = [
+  "from-emerald-950 via-zinc-900 to-zinc-900",
+  "from-zinc-800 via-zinc-900 to-zinc-950",
+  "from-teal-950 via-zinc-900 to-zinc-900",
+  "from-zinc-900 via-emerald-950/60 to-zinc-950",
+  "from-zinc-800 via-zinc-900 to-emerald-950/70",
+];
+
+/** Certificates as a wallet: overlapping cards, one open at a time. */
 export function Certifications() {
-  const listRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const cards = listRef.current?.querySelectorAll(".cert-row-card");
-    if (!cards) return;
-
-    // Animate only when the visitor allows motion; revert() undoes just these tweens/triggers.
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      cards.forEach((card) => {
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 50, scale: 0.98 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 85%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      });
-    });
-
-    return () => mm.revert();
-  }, []);
+  const [open, setOpen] = useState(0);
 
   return (
-    <section id="certifications" className="py-32 px-6 max-w-5xl mx-auto">
-      <div className="mb-20 text-center">
+    <section id="certifications" className="py-32 px-6 max-w-3xl mx-auto">
+      <div className="mb-16 text-center">
         <h2 className="text-sm tracking-[0.2em] uppercase font-mono text-emerald-500 mb-4">Verified Milestones</h2>
         <h3 className="text-4xl md:text-5xl font-semibold text-zinc-50 tracking-tighter">Featured Certifications</h3>
       </div>
 
-      <div ref={listRef} className="flex flex-col gap-8">
-        {RESUME_DATA.certifications.map((cert, idx) => (
-          <div
-            key={idx}
-            className="cert-row-card group flex flex-col md:flex-row bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-[2rem] overflow-hidden hover:border-emerald-500/30 transition-colors duration-500"
-          >
-            {/* Left: Text Content */}
-            <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="font-mono text-emerald-500 text-xs bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                  {cert.year}
-                </span>
-                <span className="text-zinc-500 text-xs font-semibold tracking-wider uppercase">
-                  {cert.issuer}
-                </span>
-              </div>
-
-              <h4 className="text-2xl md:text-3xl font-semibold text-zinc-100 leading-tight mb-4 group-hover:text-emerald-300 transition-colors">
-                {cert.name}
-              </h4>
-
-              <div className="space-y-3 mb-8">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/60 shrink-0" />
-                  <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
-                    {cert.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-auto">
-                <a
-                  href={cert.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 bg-zinc-100 text-zinc-950 px-6 py-3 rounded-full text-sm font-semibold tracking-wide hover:bg-emerald-500 transition-colors"
+      {/* "user": layout animations are skipped under reduced motion */}
+      <MotionConfig reducedMotion="user" transition={{ type: "spring", stiffness: 260, damping: 30 }}>
+        <div className="flex flex-col">
+          {RESUME_DATA.certifications.map((cert, i) => {
+            const isOpen = i === open;
+            const skills = skillsIn(`${cert.name} ${cert.description}`);
+            return (
+              <motion.div
+                key={cert.name}
+                layout
+                className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.8)] ${TINTS[i % TINTS.length]} ${
+                  isOpen ? "border-emerald-500/40" : "border-zinc-700/60"
+                } ${i > 0 ? "-mt-5" : ""}`}
+                style={{ zIndex: i + 1 }}
+              >
+                <motion.button
+                  layout="position"
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  aria-expanded={isOpen}
+                  aria-controls={`cert-${i}`}
+                  className="flex w-full items-center gap-4 px-6 pb-6 pt-5 text-left md:px-8"
                 >
-                  View Credential
-                  <ArrowRight weight="bold" className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-
-            {/* Right: Image Content */}
-            <div className="w-full md:w-1/2 relative min-h-[250px] md:min-h-full bg-zinc-950 p-6 md:p-8 flex items-center justify-center">
-              {/* Radial gradient glow behind image */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-50" />
-              
-              {/* Image Container with tight rounded corners to look like a frame/device */}
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-zinc-800 shadow-2xl group-hover:scale-[1.02] transition-transform duration-500">
-                {cert.image ? (
-                  <Image
-                    src={cert.image}
-                    alt={cert.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                  <SealCheck weight="duotone" className="h-7 w-7 shrink-0 text-emerald-400" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                      {cert.issuer} · {cert.year}
+                    </span>
+                    <span className={`mt-1 block font-semibold text-zinc-50 ${isOpen ? "text-xl md:text-2xl" : "truncate text-base md:text-lg"}`}>
+                      {cert.name}
+                    </span>
+                  </span>
+                  <CaretDown
+                    weight="bold"
+                    className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                   />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-zinc-700 font-mono text-sm">
-                    No Image Provided
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+                </motion.button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      id={`cert-${i}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                      className="grid gap-6 px-6 pb-8 md:grid-cols-[1.2fr_1fr] md:px-8"
+                    >
+                      <div className="relative aspect-video overflow-hidden rounded-xl border border-zinc-700/60 bg-zinc-950">
+                        {cert.image && (
+                          <Image src={cert.image} alt={cert.name} fill sizes="(max-width: 768px) 90vw, 400px" className="object-cover" />
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <p className="text-sm leading-relaxed text-zinc-300">{cert.description}</p>
+                        {skills.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {skills.map((s) => (
+                              <button
+                                key={s}
+                                onClick={() => focusSkill(s)}
+                                title={`See ${s} on the skill map`}
+                                className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs text-emerald-300 transition-colors hover:bg-emerald-500/20 active:scale-[0.98]"
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <a
+                          href={cert.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-auto inline-flex items-center gap-2 self-start rounded-full bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-500 active:scale-[0.98] max-md:mt-6"
+                        >
+                          Verify credential
+                          <ArrowUpRight weight="bold" className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      </MotionConfig>
     </section>
   );
 }

@@ -44,9 +44,9 @@
 
 ## Phase 6: Creative sections (2026-10-28)
 - [x] T0 Bridge 3: clear the white patches in the headband/ear-cup gaps (cut-out keeps holes ringed by hair/headphones transparent)
-- [ ] T1 `skillGraph.ts`: works, skill <-> work links, skill <-> skill edges
-- [ ] T2 Skill constellation (desktop SVG + phone chips, shared detail panel, entrance animation, reduced motion)
-- [ ] T3 Projects horizontal pinned pan (desktop) / swipe carousel (phones, reduced motion)
-- [ ] T4 Credential wallet for certifications
-- [ ] T5 `focus-skill` hub link from project and certificate chips
-- [ ] T6 Verify desktop + phone + reduced motion, lint/typecheck/build; update docs; merge into `dev`
+- [x] T1 `skillGraph.ts`: works, skill <-> work links, skill <-> skill edges
+- [x] T2 Skill constellation (desktop SVG + phone chips, shared detail panel, entrance animation, reduced motion)
+- [x] T3 Projects horizontal pinned pan (desktop) / swipe carousel (phones, reduced motion)
+- [x] T4 Credential wallet for certifications
+- [x] T5 `focus-skill` hub link from project and certificate chips
+- [x] T6 Verify desktop + phone + reduced motion, lint/typecheck/build; update docs; merge into `dev`
