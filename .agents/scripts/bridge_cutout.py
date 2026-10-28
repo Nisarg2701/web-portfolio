@@ -1,4 +1,4 @@
-"""Cut the character out of a plain off-white background, in the crop box the hero frames use.
+r"""Cut the character out of a plain off-white background, in the crop box the hero frames use.
 
 Usage for a new bridge clip (1920x1080 video, 24 fps -> keep every other frame for 12 fps):
   ffmpeg -i clip.mp4 -vf "select='not(mod(n\,2))'" -fps_mode vfr raw/f_%03d.png
