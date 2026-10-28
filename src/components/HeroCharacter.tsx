@@ -74,6 +74,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     if (!canvas || !ctx) return;
 
     const coarse = window.matchMedia("(pointer: coarse)").matches;
+    // phones: smaller frames and no glances, so only the working loop and the greeting are downloaded
     const small = coarse || window.innerWidth < 768;
     const frames: HTMLImageElement[] = [];
     const failed = new Set<number>();
@@ -313,7 +314,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     let dwell = 0;
     let onCenter = false;
     const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
+      if (e.pointerType !== "mouse" || small) return; // small screens have no glance frames
       const r = canvas.getBoundingClientRect();
       const zone = zoneAt(e.clientX);
       if (zone === "center" && e.clientY >= r.top && e.clientY <= r.bottom) {
@@ -331,10 +332,10 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     };
     section.addEventListener("pointermove", onMove);
     section.addEventListener("pointerleave", onLeave);
-    // any click or tap on the image: its left/right third glances that way, the middle greets
+    // a click on the image's left/right third glances that way, the middle greets; on phones any tap greets
     const onTap = (e: MouseEvent) => {
       clearTimeout(dwell);
-      enter(zoneAt(e.clientX), true);
+      enter(small ? "center" : zoneAt(e.clientX), true);
     };
     canvas.addEventListener("click", onTap);
 
@@ -356,7 +357,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       await loadAll(range(1, 14));
       await loadAll([...B3, ...GREET]);
       if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
-      await loadAll([...range(15, 43), ...B1, ...B2]);
+      if (!small) await loadAll([...range(15, 43), ...B1, ...B2]);
     })();
 
     return () => {

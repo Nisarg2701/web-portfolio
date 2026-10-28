@@ -57,4 +57,11 @@
 - [x] F3 Projects progress bar stuck near empty
 - [x] F4 Skill wheel replaces the constellation; categories and skills come straight from `portfolio-data.json` (new category key = new slice, new skill = new spoke, no code change)
 - [x] F5 Add skills: new `ai_tools` category (ChatGPT, Claude, Gemini, Nano Banana, DALL-E, Omni, Veo); Vercel, Supabase -> cloud_tools; Redis -> databases (PostgreSQL already listed). 47 skills now.
-- [ ] F6 Skills section still doesn't look right as a wheel: alternatives brainstormed in Ideas.md ("Skills, round 2"); waiting on the user's pick.
+- [x] F6 Skills section: user rejected the wheel and the round-2 ideas for now; restore the original bento grid (H1). User will come back with an idea.
+
+## Phase 8: Hero weight + glance lag (2026-10-28, branch `fix/hero-weight-bento`)
+- [x] H1 Restore the original bento skills section (with the new skills); remove the wheel, the skill graph and the project/certificate jump chips
+- [x] H2 Phones: no glances. Any tap greets; load only the working loop + bridge 3 + greeting
+- [x] H3 Delete frames nothing plays (113-120)
+- [x] H4 Glance lag, measured: right turn spends ~1.9 s reaching its peak (bridge 1 starts slowly and stalls mid-way; left turn takes 0.67 s), and right -> left ends in ~0.5 s of near-still frames (the original blink section played backwards). Fix = new user-generated clip working -> right -> left. Prepare see-through references + prompt with a magenta key background.
+- [ ] H5 Integrate the new glance clip once delivered (replaces bridge 1 and the reversed take for right -> left)

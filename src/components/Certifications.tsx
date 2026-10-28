@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
-import { focusSkill, skillsIn } from "@/data/skillGraph";
 import { ArrowUpRight, CaretDown, SealCheck } from "@phosphor-icons/react/dist/ssr";
 
 // each card gets its own tint so the stack reads as separate cards, all within the emerald/zinc palette
@@ -36,7 +35,6 @@ export function Certifications() {
       <div className="flex flex-col">
         {RESUME_DATA.certifications.map((cert, i) => {
           const isOpen = i === open;
-          const skills = skillsIn(`${cert.name} ${cert.description}`);
           return (
             <div
               key={cert.name}
@@ -83,25 +81,11 @@ export function Certifications() {
                       </div>
                       <div className="flex flex-col">
                         <p className="text-sm leading-relaxed text-zinc-300">{cert.description}</p>
-                        {skills.length > 0 && (
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {skills.map((s) => (
-                              <button
-                                key={s}
-                                onClick={() => focusSkill(s)}
-                                title={`See ${s} on the skill map`}
-                                className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs text-emerald-300 transition-colors hover:bg-emerald-500/20 active:scale-[0.98]"
-                              >
-                                {s}
-                              </button>
-                            ))}
-                          </div>
-                        )}
                         <a
                           href={cert.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-auto inline-flex items-center gap-2 self-start rounded-full bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-500 active:scale-[0.98] max-md:mt-6"
+                          className="mt-6 md:mt-auto inline-flex items-center gap-2 self-start rounded-full bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-500 active:scale-[0.98]"
                         >
                           Verify credential
                           <ArrowUpRight weight="bold" className="h-4 w-4" />

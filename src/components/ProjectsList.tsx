@@ -5,7 +5,6 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { RESUME_DATA } from "@/data/resume";
-import { focusSkill, skillsIn } from "@/data/skillGraph";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 
 // lines the first slide up with the page's max-w-7xl content edge
@@ -96,24 +95,11 @@ export function ProjectsList() {
                 <p className="mt-4 text-sm leading-relaxed text-zinc-400 md:text-base">{project.description}</p>
 
                 <div className="mt-6 flex flex-wrap gap-2">
-                  {project.type.split(",").map((t) => {
-                    const tech = t.trim();
-                    const skill = skillsIn(tech)[0];
-                    return skill ? (
-                      <button
-                        key={tech}
-                        onClick={() => focusSkill(skill)}
-                        title={`See ${skill} on the skill map`}
-                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs text-emerald-300 transition-colors hover:bg-emerald-500/20 active:scale-[0.98]"
-                      >
-                        {tech}
-                      </button>
-                    ) : (
-                      <span key={tech} className="rounded-lg border border-zinc-700 px-2.5 py-1 font-mono text-xs text-zinc-400">
-                        {tech}
-                      </span>
-                    );
-                  })}
+                  {project.type.split(",").map((t) => (
+                    <span key={t} className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs text-emerald-300">
+                      {t.trim()}
+                    </span>
+                  ))}
                 </div>
 
                 {project.link && (
