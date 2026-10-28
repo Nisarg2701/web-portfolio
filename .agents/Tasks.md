@@ -56,3 +56,5 @@
 - [x] F2 Constellation: reads as jumbled, weakly connected and hard to classify. Diagnosed; user picked the skill wheel (F4).
 - [x] F3 Projects progress bar stuck near empty
 - [x] F4 Skill wheel replaces the constellation; categories and skills come straight from `portfolio-data.json` (new category key = new slice, new skill = new spoke, no code change)
+- [x] F5 Add skills: new `ai_tools` category (ChatGPT, Claude, Gemini, Nano Banana, DALL-E, Omni, Veo); Vercel, Supabase -> cloud_tools; Redis -> databases (PostgreSQL already listed). 47 skills now.
+- [ ] F6 Skills section still doesn't look right as a wheel: alternatives brainstormed in Ideas.md ("Skills, round 2"); waiting on the user's pick.

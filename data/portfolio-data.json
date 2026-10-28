@@ -15,6 +15,7 @@
                                      "SQLite",
                                      "NoSQL",
                                      "PostgreSQL",
+                                     "Redis",
                                      "Firebase (Firestore)"
                                  ],
                    "backend":  [
@@ -26,6 +27,8 @@
                                ],
                    "cloud_tools":  [
                                        "Azure",
+                                       "Vercel",
+                                       "Supabase",
                                        "Git",
                                        "Bitbucket",
                                        "Agile",
@@ -43,6 +46,15 @@
                                  "Data Science",
                                  "Generative AI"
                              ],
+                   "ai_tools":  [
+                                    "ChatGPT",
+                                    "Claude",
+                                    "Gemini",
+                                    "Nano Banana",
+                                    "DALL-E",
+                                    "Omni",
+                                    "Veo"
+                                ],
                    "mobile":  [
                                   "Kotlin",
                                   "Java",
