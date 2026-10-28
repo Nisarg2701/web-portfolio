@@ -3,13 +3,18 @@
 // sessions (goals switching at random moments) never get stuck. Whether each cut is seamless is
 // measured by build_hero_frames.py, which only allows seamless ones into the table.
 // Run from the repo root:  node --experimental-strip-types .agents/scripts/check_hero_paths.ts
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import assert from "node:assert/strict";
-import { FRAMES, LAST, LOOP, LEFT, PHONE, RIGHT, START, arrive, frameOf, step, type Goal } from "../../src/components/heroFrames.ts";
+import { FRAMES, LAST, LOOP, LEFT, PHONE, RIGHT, START, arrive, frameOf, step, type Goal } from "../../src/components/hero/heroFrames.ts";
 
 const file = (n: number, small = false) => `public/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
-const missing = Array.from({ length: FRAMES }, (_, k) => k + 1).filter((n) => !existsSync(file(n)) || !existsSync(file(n, true)));
+const all = Array.from({ length: FRAMES }, (_, k) => k + 1);
+const missing = [...all.filter((n) => !existsSync(file(n))), ...PHONE.filter((n) => !existsSync(file(n, true))).map((n) => `sm/${n}`)];
 assert.deepEqual(missing, [], "missing frames");
+// nothing is deployed that the site never requests
+const extra = [...readdirSync("public/hero-frames").filter((f) => f.endsWith(".webp") && !all.includes(parseInt(f.slice(6)))),
+  ...readdirSync("public/hero-frames/sm").filter((f) => !PHONE.includes(parseInt(f.slice(6)))).map((f) => `sm/${f}`)];
+assert.deepEqual(extra, [], "frames nothing shows");
 
 /** Frames shown following `goal` from `node` until he is back at work (or done greeting). */
 const play = (goal: Goal, node: number, limit = 2000) => {

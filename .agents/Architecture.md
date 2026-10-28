@@ -4,7 +4,8 @@
 A Next.js App Router static portfolio built with React, Tailwind v4, and GSAP. 
 
 ## Data Layer
-- Source of Truth: `data/portfolio-data.json`
+- Source of Truth: `src/data/portfolio-data.json`
+- Components: `src/components/layout/` (Navbar, Footer, WhatsApp), `src/components/sections/` (BentoGrid, ExperienceStack, ProjectsList, Certifications, EducationAndLeadership), `src/components/hero/` (Hero, HeroCharacter, heroFrames.ts, heroGraph.json)
 - Ingestion: `src/data/resume.ts` imports the JSON directly.
 - Most sections are client components (GSAP / motion), so the resume data they import is included in the client bundle. Only `BentoGrid` and the page shell render on the server. The data is public, so this is not a security concern.
 

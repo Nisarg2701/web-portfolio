@@ -88,3 +88,8 @@
 - [x] R2 Player follows the table at a steady 24 fps (no catch-up skipping), decode before ready
 - [x] R3 Path check script rewritten for the table; offline render of real interaction sessions
 - [x] R4 Verify (lint/tsc/build, live load), docs, merge into dev
+
+## Phase 11: Cleanup (2026-10-28, branch `chore/cleanup-unused`)
+- [x] C1 Remove unused files: `public/images/profile.jpg`, `.agents/scripts/bridge_cutout.py`, 258 `sm/` frames small screens never request (build script now writes `sm/` only for phone-reachable frames; path check fails on any deployed frame nothing shows)
+- [x] C2 Components grouped into `layout/`, `sections/`, `hero/`; content JSON moved to `src/data/`
+- [x] C3 Old local reference images deleted (`.agents/bridge-frames/` keeps only `fresh/`: source clips + references)

@@ -30,7 +30,7 @@ Animations are turned off for visitors who have "reduce motion" enabled.
 
 ## Editing the content
 
-All content lives in [`data/portfolio-data.json`](data/portfolio-data.json). [`src/data/resume.ts`](src/data/resume.ts) maps it into the shape the components use, so most updates need no code changes.
+All content lives in [`src/data/portfolio-data.json`](src/data/portfolio-data.json). [`src/data/resume.ts`](src/data/resume.ts) maps it into the shape the components use, so most updates need no code changes.
 
 - **Experience:** give each job `start` and `end` as `"YYYY-MM"` (leave out `end` for a current job). The total shown on the site (for example "~3 years") is calculated from these, counting overlapping months once.
 - **Summary:** `{years}` in `profile.summary` is replaced with that same total.
@@ -57,9 +57,11 @@ npm run lint
 ## Project structure
 
 ```
-data/portfolio-data.json   all site content
-public/                    resume PDF and images
-src/app/                   layout, metadata, page, preview image
-src/components/            one component per section
-src/data/resume.ts         maps the JSON for the components
+public/                         resume PDF, images, hero animation frames (hero-frames/, phones: hero-frames/sm/)
+src/app/                        layout, metadata, page, preview image
+src/components/layout/          navbar, footer + contact dialog, WhatsApp button
+src/components/sections/        one component per page section
+src/components/hero/            hero section, animated character, its playback table
+src/data/portfolio-data.json    all site content
+src/data/resume.ts              maps the JSON for the components
 ```
