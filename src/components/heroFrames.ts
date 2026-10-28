@@ -9,23 +9,23 @@ export const range = (a: number, b: number) => {
   return out;
 };
 
-// 1-47 working loop (1 is the hub; 47 runs back into 1)
-export const IDLE = range(1, 47);
-// 48-166 greeting: looks up and smiles -> headphones back off his head -> waves (~108) -> points down (~144)
-export const GREET = range(48, 166);
-export const WAVE = 108;
-export const POINT = 144;
-const END = 166;
-export const DONE = [...range(END, 150), ...range(151, END - 1)]; // rests within the held point
-// 167-261 glance clip, one line from hub to hub: turns screen-right, holds (to RT), sweeps across,
+// 1-24 working loop (1 is the hub; 24 runs back into 1)
+export const IDLE = range(1, 24);
+// 25-83 greeting: looks up and smiles -> headphones back off his head -> waves (~55) -> points down (~73)
+export const GREET = range(25, 83);
+export const WAVE = 55;
+export const POINT = 73;
+const END = 83;
+export const DONE = [...range(END, 76), ...range(77, END - 1)]; // rests within the held point
+// 84-130 glance clip, one line from hub to hub: turns screen-right, holds (to RT), sweeps across,
 // holds screen-left (from LT), turns back. Glances walk along it either way.
-export const G0 = 167;
-export const RT = 206;
-export const LT = 226;
-export const GE = 261;
+export const G0 = 84;
+export const RT = 103;
+export const LT = 113;
+export const GE = 130;
 
 // frames that are the hub (or one step from it): any of them can follow any other
-const HUB = new Set([1, 47, 48, G0, GE]);
+const HUB = new Set([1, IDLE.at(-1)!, GREET[0], G0, GE]);
 export const isJump = (a: number, b: number) =>
   Math.abs(a - b) > 6 && !(HUB.has(a) && HUB.has(b));
 
@@ -38,8 +38,20 @@ export const glance = (side: "left" | "right", n: number) => {
   return [...range(onGlance(n) ? n : GE, LT), ...range(LT, GE)];
 };
 
-/** Frames for the greeting, starting from frame `n`: back to the nearest hub first, if on a glance. */
+// glance frames where his head faces forward, and the greeting frame (about to look up) each matches
+// (measured: within a normal step, except the sweep's blurred centre)
+const ENTRIES = [
+  [91, 29], // turning back from the right
+  [105, 29], // centre of the sweep
+  [123, 31], // turning back from the left
+] as const;
+
+/** Frames for the greeting, starting from frame `n`. Mid-glance he only turns his head forward (to the
+ * nearest entry) and greets from there, instead of going back to work first. */
 export const greeting = (n: number) => {
-  if (!onGlance(n)) return GREET;
-  return [...range(n, n < (RT + LT) / 2 ? G0 : GE), ...GREET];
+  if (!onGlance(n) || n === G0 || n === GE) return GREET;
+  if (n < ENTRIES[0][0]) return range(ENTRIES[0][1], END); // still facing nearly forward
+  if (n > ENTRIES[2][0]) return range(ENTRIES[2][1], END);
+  const [e, g] = ENTRIES.reduce((a, b) => (Math.abs(b[0] - n) < Math.abs(a[0] - n) ? b : a));
+  return [...range(n, e), ...range(g, END)];
 };

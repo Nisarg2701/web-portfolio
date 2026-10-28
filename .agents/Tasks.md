@@ -76,4 +76,5 @@
 - [x] P3 Key, cut to segments, export frames (full + sm), delete the old frame set (`build_hero_frames.py`)
 - [x] P4 Rewrite the player around hub segments (drop WARPS / SEAMLESS / bridge special cases); keep the path check script
 - [x] P5 Verify (path check, offline path render, live load in the pane), update docs, merge into dev
-- [ ] P6 User review of the motion on a real screen (the preview pane throttles animation); consider side -> smile bridges if greeting from a side feels slow (~3 s back to the hub first)
+- [x] P6a User feedback: greeting from a side went back to work first; animation slow. Fixed: side greeting enters the greeting from the nearest forward-facing glance frame; frames rebuilt at every 4th source frame (2x speed, half the download)
+- [ ] P6b User review of the new pace on a real screen
