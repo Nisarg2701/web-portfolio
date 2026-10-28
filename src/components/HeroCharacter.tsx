@@ -17,25 +17,26 @@ const range = (a: number, b: number) => {
   return out;
 };
 
-// Frame map of the clip (see public/hero-frames): 1-14 working; 14-43 is one continuous take
-// (turn screen-left, peak ~22 -> back to center with a blink ~30 -> turn screen-right, peak ~38);
-// 44-112 notice -> headset off -> wave -> point down (the clip lifts and points again from 115, so it stops at 112).
+// Frame map (see public/hero-frames): 1-14 working; 14-22 turn screen-left (peak 22);
+// 44-112 notice -> headset off -> wave -> point down.
 const L = 22;
-const R = 38;
-const BLINK = 30;
 const IDLE = [...range(14, 1), ...range(2, 13)]; // starts at 14, where the glances hand back
 const END = 112;
 const GREET = range(44, END);
 const DONE = [...range(END, 100), ...range(101, END - 1)]; // rests within the held point
-// Generated bridge clips, stored after the main clip: 121-138 working -> start of the right turn
-// (flows into 32), 139-174 left glance (flows on from 22) -> smiling at the viewer (flows into 47).
-const B1 = range(121, 138);
+// Generated clips, stored after the main one: 139-174 left glance (flows on from 22) -> smiling at
+// the viewer (flows into 47).
 const B2 = range(139, 174);
 // even frames 176-222 (every other frame of the clip, 2s): working -> looks up and smiles at the
 // viewer (flows into 47); its ends match 14 and 47 to within a pixel, so it needs no size match
 const B3 = range(176, 222).filter((n) => n % 2 === 0);
+// 223-257 glance clip (every other frame of a 24fps clip): 223 working -> turns screen-right, peak at
+// 233 -> sweeps across -> 257 looking screen-left, which matches 22 exactly (so left glances hand over)
+const G0 = 223;
+const R = 233;
+const GL = 257;
 // joins that are continuous even though the frame numbers jump
-const SEAMLESS = new Set(["138>32", "32>138", "22>139", "174>47", "222>47"]);
+const SEAMLESS = new Set(["22>139", "174>47", "222>47", "22>257", "257>22", "257>139"]);
 const isJump = (a: number, b: number) => Math.abs(a - b) > 6 && !SEAMLESS.has(`${a}>${b}`);
 
 // The camera slowly pulls back through the clip, so at a cut the new frame is a bit smaller.
@@ -43,11 +44,10 @@ const isJump = (a: number, b: number) => Math.abs(a - b) > 6 && !SEAMLESS.has(`$
 // (fitted on the whole figure; working frames 1-14 share frame 14's geometry).
 const WARPS: [number, number, number, number, number][] = [
   // bridge joins (fitted on the exported cutouts)
-  [14, 121, 1.0106, -8.6, -7.4],
-  [121, 14, 1 / 1.0106, 8.6 / 1.0106, 7.4 / 1.0106],
-  [138, 32, 1.0052, -3.2, -3.0],
-  [32, 138, 1 / 1.0052, 3.2 / 1.0052, 3.0 / 1.0052],
   [174, 47, 1.0085, -6.0, -4.4],
+  [14, G0, 1.0125, -5.8, -11.0],
+  [G0, 14, 1 / 1.0125, 5.8 / 1.0125, 11.0 / 1.0125], // exact inverse, so there-and-back matches
+  [G0, 176, 1 / 1.0125, 5.8 / 1.0125, 11.0 / 1.0125], // into bridge 3, whose start matches 14
 ];
 const warpFor = (a: number, b: number) =>
   WARPS.find(([from, to]) => Math.abs(from - Math.max(a, 14)) <= 6 && Math.abs(to - b) <= 6);
@@ -179,29 +179,33 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
 
     // Moves glide frame by frame from wherever he is: along the 14-43 take (so right -> left passes
     // back through center) and through the bridge clips, which join it without a cut.
-    const onTake = () => shown > 14 && shown <= 43;
-    const inB1 = () => shown >= 121 && shown <= 138;
+    // where he is: turning screen-left (15-22), or on the glance clip's right turn / sweep
+    const onLeft = () => shown > 14 && shown <= L;
+    const onTurn = () => shown >= G0 && shown <= R;
+    const onSweep = () => shown > R && shown <= GL;
     const glance = (side: "left" | "right") => {
-      const peak = side === "left" ? L : R;
       const there =
         side === "left"
-          ? inB1()
-            ? [...range(shown, 121), ...range(14, L)] // back out of the bridge, then turn left
-            : range(shown >= 1 && shown <= 14 ? shown : 14, L) // working runs straight into the left turn
-          : inB1()
-            ? [...range(shown, 138), ...range(32, R)]
-            : onTake()
+          ? onSweep() || (onTurn() && shown > (G0 + R) / 2)
+            ? range(shown, GL) // already turning: carry on across to the left (257 hands over to 22)
+            : onTurn()
+              ? [...range(shown, G0), ...range(14, L)] // barely started right: back, then left
+              : range(shown >= 1 && shown <= L ? shown : 14, L) // working runs straight into the left turn
+          : onLeft()
+            ? [...range(shown, L), ...range(GL, R)] // the sweep backwards, from the left to the right
+            : onTurn() || onSweep()
               ? range(shown, R)
-              : [...B1, ...range(32, R)]; // working -> bridge 1 -> right turn
-      const home = side === "left" ? range(L, 14) : [...range(R, 32), ...range(138, 121)];
+              : range(G0, R); // working -> right turn
+      const peak = side === "left" ? L : R;
+      const home = side === "left" ? range(L, 14) : range(R, G0);
       return [...there, ...Array(HOLD).fill(peak), ...home];
     };
     const greeting = () => {
-      // right side: the take itself carries on into the greeting
-      if (inB1()) return [...range(shown, 138), ...range(32, 43), ...GREET];
-      if (shown >= BLINK && shown <= 43) return [...range(shown, 43), ...GREET];
       // left side: back to the glance, then bridge 2 turns him to the viewer and into the greeting
-      if (onTake()) return [...range(shown, L), ...B2, ...range(47, END)];
+      if (onLeft()) return [...range(shown, L), ...B2, ...range(47, END)];
+      if (onSweep() && shown > (R + GL) / 2) return [...range(shown, GL), ...B2, ...range(47, END)];
+      // right side: turn back to the laptop, then bridge 3 lifts his head to the viewer
+      if (onTurn() || onSweep()) return [...range(shown, G0), ...B3, ...range(47, END)];
       // from working (or a finished greeting) bridge 3 lifts his head to the viewer
       return [...B3, ...range(47, END)];
     };
@@ -357,7 +361,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       await loadAll(range(1, 14));
       await loadAll([...B3, ...GREET]);
       if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
-      if (!small) await loadAll([...range(15, 43), ...B1, ...B2]);
+      if (!small) await loadAll([...range(15, L), ...range(G0, GL), ...B2]);
     })();
 
     return () => {
