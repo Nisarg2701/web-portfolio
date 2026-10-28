@@ -70,4 +70,6 @@ Optional later, only if returning to the hub before greeting from a side feels s
 
 **Player after the clips land:** segments cut automatically from the keyed frames (hub, right peak, left peak found by pose matching); every glance or greeting is "play segments forward or backward through the hub". Holds are done in code (repeat the peak frame), so the clips only need short holds. WARPS, SEAMLESS lists and bridge special cases go away. Phones keep only the loop and the greeting.
 
+**As built (clips in 2026-10-28):** crop box widened to (208, 0, 1518, 1080), scaled to the same 1374x978 canvas. Frames at 12 fps (every other source frame): loop 1-47, greeting 48-166, glance clip 167-261. The glance clip is one line, hub -> right hold -> sweep -> left hold -> hub; glances walk along it forward or backward (left from the hub = its end played backward), so holds are the clip's own natural holds played there and back. Greeting from a side walks back to the nearest hub end first. Any jump that isn't hub-to-hub keeps the short crossfade.
+
 **Pilot check before making the other two:** first and last frames must match the hub (measured, after keying); the figure must not drift in size or position through the clip; the magenta must stay flat. If drift shows up, adjust the prompt before generating the rest.

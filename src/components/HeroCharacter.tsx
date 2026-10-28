@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { B2, B3, DONE, G0, GL, GREET, IDLE, L, glance, greeting, isJump, range, warpFor } from "@/components/heroFrames";
+import { DONE, G0, GE, GREET, IDLE, POINT, WAVE, glance, greeting, isJump, range } from "@/components/heroFrames";
 
-const FPS = 12; // the source clip was cut at 12fps
+const FPS = 12; // the source clips were cut at 12fps
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
 // frames are kept in Cache Storage too, so repeat visits don't depend on the browser's HTTP cache
 // (bump the version whenever the frames change; older caches are deleted)
-const CACHE = "hero-frames-v3";
+const CACHE = "hero-frames-v4";
 const POOL = 6; // parallel downloads
 
 type Zone = "left" | "center" | "right";
@@ -115,16 +115,6 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     let shown = 0;
     let fadeFrom: HTMLImageElement | null = null;
     let fadeStart = 0;
-    type Xf = { s: number; dx: number; dy: number };
-    let warp: (Xf & { start: number }) | null = null;
-    let fadeXf: Xf = { s: 1, dx: 0, dy: 0 };
-    // the size correction in effect right now (eases from the cut's match back to the frame's own size)
-    const current = (now: number): Xf => {
-      if (!warp) return { s: 1, dx: 0, dy: 0 };
-      const k = Math.min((now - warp.start) / 600, 1);
-      const e = 1 - (1 - k) ** 3;
-      return { s: warp.s + (1 - warp.s) * e, dx: warp.dx * (1 - e), dy: warp.dy * (1 - e) };
-    };
     let last = 0;
     let raf = 0;
 
@@ -166,18 +156,10 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       // short crossfade on a jump: old frame stays solid underneath, the new one fades in on top
       // (fading both would leave the character half see-through mid-fade)
       const t = fadeFrom ? Math.min((now - fadeStart) / 320, 1) : 1;
-      if (fadeFrom && t < 1) {
-        ctx.setTransform(fadeXf.s, 0, 0, fadeXf.s, fadeXf.dx, fadeXf.dy);
-        ctx.drawImage(fadeFrom, 0, 0, canvas.width, canvas.height);
-      }
-      // after a cut the new frame starts matched to the old one's size/position, then eases to its own
-      const x = current(now);
-      ctx.setTransform(x.s, 0, 0, x.s, x.dx, x.dy);
-      if (warp && now - warp.start >= 600) warp = null;
+      if (fadeFrom && t < 1) ctx.drawImage(fadeFrom, 0, 0, canvas.width, canvas.height);
       ctx.globalAlpha = t;
       ctx.drawImage(frames[shown], 0, 0, canvas.width, canvas.height);
       ctx.globalAlpha = 1;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
       if (t >= 1) fadeFrom = null;
     };
 
@@ -188,7 +170,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       // time-based: when frames arrive late (slow device, throttled tab) skip ahead instead of slowing down
       let steps = Math.min(Math.floor((now - last) / (1000 / FPS)), 6);
       if (steps < 1) {
-        if (fadeFrom || warp) draw(now);
+        if (fadeFrom) draw(now);
         return;
       }
       last = now;
@@ -197,8 +179,8 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       while (steps-- > 0 && (ready(list[i]) || failed.has(list[i]))) {
         if (ready(list[i])) n = list[i];
         i++;
-        if (mode === "greet" && n === 75) setMessage("Hiiii!");
-        if (mode === "greet" && n === 97) setMessage("Check out the portfolio");
+        if (mode === "greet" && n === WAVE) setMessage("Hiiii!");
+        if (mode === "greet" && n === POINT) setMessage("Check out the portfolio");
         if (i >= list.length) {
           if (mode === "greet") finishGreeting();
           else if (mode !== "idle" && mode !== "done") setMode("idle");
@@ -206,22 +188,13 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
         }
       }
       if (n === shown) {
-        if (fadeFrom || warp) draw(now);
+        if (fadeFrom) draw(now);
         return;
       }
-      // a cut gets a short crossfade; cuts and bridge joins both get a size match
-      const w = shown ? warpFor(shown, n) : undefined;
-      const cut = shown > 0 && isJump(shown, n);
-      if (cut || w) {
-        // back-to-back cuts build on whatever correction is still easing out
-        const c = current(now);
-        if (cut) {
-          fadeFrom = frames[shown];
-          fadeXf = c;
-          fadeStart = now;
-        }
-        const [s, dx, dy] = w?.slice(2) ?? [1, 0, 0];
-        warp = { s: c.s * s, dx: c.s * dx + c.dx, dy: c.s * dy + c.dy, start: now };
+      // a cut (e.g. from mid-loop into a glance) gets a short crossfade; joins through the hub don't
+      if (shown > 0 && isJump(shown, n)) {
+        fadeFrom = frames[shown];
+        fadeStart = now;
       }
       shown = n;
       draw(now);
@@ -282,13 +255,13 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     );
     io.observe(canvas);
 
-    // Load in stages so each batch gets the bandwidth: the working loop first, then the greeting
-    // (plus bridge 3, which leads into it from working), then the glances.
+    // Load in stages so each batch gets the bandwidth: the working loop first, then the greeting,
+    // then the glances.
     (async () => {
-      await loadAll(range(1, 14));
-      await loadAll([...B3, ...GREET]);
+      await loadAll(IDLE);
+      await loadAll(GREET);
       if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
-      if (!small) await loadAll([...range(15, L), ...range(G0, GL), ...B2]);
+      if (!small) await loadAll(range(G0, GE));
     })();
 
     return () => {

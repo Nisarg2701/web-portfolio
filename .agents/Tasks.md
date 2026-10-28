@@ -70,8 +70,10 @@
 
 ## Phase 9: Fresh hero clips (2026-10-28)
 - [x] P0 Plan the clip set around one hub frame; prepare the hub reference and the pilot prompt
-- [ ] P1 User generates the pilot (glances clip); check hub match, size drift, background flatness
-- [ ] P2 User generates the working loop and greeting clips (prompts adjusted from the pilot if needed)
-- [ ] P3 Key, cut to segments, export frames (full + sm), delete the old frame set
-- [ ] P4 Rewrite the player around hub segments (drop WARPS / SEAMLESS / bridge special cases); keep the path check script
-- [ ] P5 Verify desktop + phone, update docs, merge into dev
+- [x] P1 User generates the pilot (glances clip); check hub match, size drift, background flatness
+- [x] P2 User generates the working loop and greeting clips (greeting take 2: headphones slide back over the head)
+- [x] P2b Widen the crop box to (208, 0, 1518, 1080) so the greeting's elbows and headband fit (character ~10% smaller)
+- [x] P3 Key, cut to segments, export frames (full + sm), delete the old frame set (`build_hero_frames.py`)
+- [x] P4 Rewrite the player around hub segments (drop WARPS / SEAMLESS / bridge special cases); keep the path check script
+- [x] P5 Verify (path check, offline path render, live load in the pane), update docs, merge into dev
+- [ ] P6 User review of the motion on a real screen (the preview pane throttles animation); consider side -> smile bridges if greeting from a side feels slow (~3 s back to the hub first)
