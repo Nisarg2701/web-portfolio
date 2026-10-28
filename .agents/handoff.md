@@ -43,3 +43,18 @@ npm run dev
 
 ## Deployment
 - Vercel project `portfolio-app` (team "nisarg2701's projects") is linked to `Nisarg2701/web-portfolio`. Pushes to `main` deploy to production at https://nisarg-pakhawala-portfolio.vercel.app; pushes to `dev` create preview deployments.
+
+## Polish round 2 (2026-10-28, merged into `dev`)
+Branch `feat/nav-experience-whatsapp`. Plan: Implementation-Plan.md Step 6; checklist: Tasks.md Phase 5 (all done except T2).
+- Navbar: real logo (`src/app/icon.jpg`), "Connect" link to `#contact`, smooth scrolling links, Motion `useScroll` instead of window scroll listeners. Sitewide emerald `:focus-visible` ring in `globals.css` (the white box around the logo was the browser's default focus outline).
+- Experience: the covered card's opacity now fades between the next card's `top 85%` and `top 35%` (scale still runs the full approach).
+- WhatsApp: `src/components/WhatsApp.tsx` + `public/whatsapp-qr.svg`. The QR was generated once with Python `qrcode` (installed only in a scratch folder, not a project dependency). **If the phone number changes, regenerate the QR** (any QR generator, content `https://wa.me/<digits only>`, black on transparent SVG).
+- Ideas for Skills / Projects / Certifications: `.agents/Ideas.md` (not built).
+
+### Open: hero bridge 3 (needs the user's generated clip)
+Hovering straight onto the middle while he works cuts from frame 14 to 47 behind a blink (`greeting()` last branch in `HeroCharacter.tsx`). Bridge 3 replaces that blink.
+- Start frame: `.agents/bridge-frames/bridge3_start_working_f014.png` (working, eyes on the laptop). End frame: `.agents/bridge-frames/bridge3_end_greeting_f047.png` (smiling at the viewer).
+- Generate with a first/last-frame video model (same tool as bridges 1 and 2), ~2 s, 16:9, 1920x1080. Prompt:
+  > 3D animated cartoon man with short dark hair, a trimmed beard and green eyes, wearing dark grey over-ear headphones and a navy blue shirt, sitting behind a dark grey Dell laptop in front of a plain off-white wall. He is typing and looking down at the laptop screen with a calm, focused expression. He notices someone, stops typing, and slowly raises his head and eyes to look straight into the camera, his eyes opening a little wider as he breaks into a warm, friendly closed-mouth smile. He ends looking directly at the camera, smiling gently, hands resting on the keyboard. Static locked-off camera, same framing and lighting throughout, no cuts, smooth natural motion.
+  > Negative: camera movement, zoom, pan, headphones coming off, waving, talking, open mouth, text, watermark, extra people, background change.
+- Integration (Claude): cut the clip to 12 fps, remove the background and crop it to the shared box like the other frames (also an `sm/` copy), store as frames 175+, play it in `greeting()` instead of `[BLINK, BLINK, BLINK]`, add size-match `WARPS` for 14>175 and end>47, and bump `CACHE` to `hero-frames-v2`.

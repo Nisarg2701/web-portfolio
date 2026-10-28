@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
+import Image from "next/image";
+import { useMotionValueEvent, useScroll } from "motion/react";
 import { ArrowUp, List, X } from "@phosphor-icons/react/dist/ssr";
 import { RESUME_DATA } from "@/data/resume";
+import logo from "@/app/icon.jpg";
 
 const LINKS = [
   { id: "skills", label: "Skills" },
@@ -10,6 +13,7 @@ const LINKS = [
   { id: "projects", label: "Projects" },
   { id: "certifications", label: "Certifications" },
   { id: "background", label: "Background" },
+  { id: "contact", label: "Connect" },
 ];
 
 // the footer listens for this and opens its contact dialog
@@ -17,27 +21,26 @@ export const OPEN_CONTACT = "open-contact";
 
 const smooth = () => (window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
 
+// glide to a section instead of the browser's instant anchor jump (scroll-padding-top keeps it below the bar)
+const goTo = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  e.preventDefault();
+  el.scrollIntoView({ behavior: smooth(), block: "start" });
+  history.replaceState(null, "", `#${id}`);
+};
+
 export function Navbar() {
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const initials = RESUME_DATA.personal.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("");
+  const { scrollY } = useScroll();
 
   // hide while scrolling down past the hero, come back on any scroll up
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (Math.abs(y - lastY) < 6) return;
-      setHidden(y > lastY && y > window.innerHeight * 0.6);
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    if (Math.abs(y - prev) > 2) setHidden(y > prev && y > window.innerHeight * 0.6);
+  });
 
   // highlight the section that covers the middle of the screen
   useEffect(() => {
@@ -47,7 +50,7 @@ export function Navbar() {
       },
       { rootMargin: "-50% 0px -50% 0px" },
     );
-    for (const id of [...LINKS.map((l) => l.id), "intro", "contact"]) {
+    for (const id of [...LINKS.map((l) => l.id), "intro"]) {
       const el = document.getElementById(id);
       if (el) io.observe(el);
     }
@@ -84,11 +87,16 @@ export function Navbar() {
               setOpen(false);
               window.scrollTo({ top: 0, behavior: smooth() });
             }}
-            className="group flex items-center gap-3"
+            className="group flex items-center gap-3 rounded-xl"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 font-mono text-sm font-bold text-zinc-950 transition-transform group-hover:-rotate-6">
-              {initials}
-            </span>
+            <Image
+              src={logo}
+              alt=""
+              width={36}
+              height={36}
+              priority
+              className="h-9 w-9 rounded-xl ring-1 ring-emerald-500/40 transition-transform group-hover:-rotate-6"
+            />
             <span className="hidden font-semibold tracking-tight text-zinc-50 sm:block">{RESUME_DATA.personal.name}</span>
           </a>
 
@@ -97,6 +105,7 @@ export function Navbar() {
               <li key={l.id}>
                 <a
                   href={`#${l.id}`}
+                  onClick={(e) => goTo(e, l.id)}
                   aria-current={active === l.id ? "true" : undefined}
                   className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
                     active === l.id ? "bg-emerald-500/15 text-emerald-300" : "text-zinc-400 hover:text-zinc-50"
@@ -111,7 +120,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <button
               onClick={contact}
-              className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-400"
+              className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition-all hover:bg-emerald-400 active:scale-[0.98]"
             >
               Get In Touch
             </button>
@@ -133,7 +142,10 @@ export function Navbar() {
               <li key={l.id}>
                 <a
                   href={`#${l.id}`}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => {
+                    setOpen(false);
+                    goTo(e, l.id);
+                  }}
                   className={`block rounded-xl px-4 py-3 text-base ${
                     active === l.id ? "bg-emerald-500/15 text-emerald-300" : "text-zinc-300 hover:bg-zinc-800"
                   }`}
@@ -151,20 +163,17 @@ export function Navbar() {
 
 export function BackToTop() {
   const [show, setShow] = useState(false);
+  // sits above the WhatsApp button
 
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > window.innerHeight);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => setShow(y > window.innerHeight));
 
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: smooth() })}
       aria-label="Back to top"
       tabIndex={show ? 0 : -1}
-      className={`fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/40 bg-zinc-950/90 text-emerald-400 shadow-[0_8px_30px_-8px_rgba(16,185,129,0.5)] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:text-zinc-950 md:bottom-8 md:right-8 ${
+      className={`fixed bottom-[5.25rem] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/40 bg-zinc-950/90 text-emerald-400 shadow-[0_8px_30px_-8px_rgba(16,185,129,0.5)] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:text-zinc-950 active:scale-95 md:bottom-[6.25rem] md:right-8 ${
         show ? "opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >

@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
 import { OPEN_CONTACT } from "@/components/Navbar";
-import { ArrowUpRight, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X } from "@phosphor-icons/react/dist/ssr";
+import { WHATSAPP_URL } from "@/components/WhatsApp";
+import { ArrowUpRight, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X, WhatsappLogo } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -197,6 +198,7 @@ export function Footer() {
                   <div className="flex flex-col gap-3">
                     <ActionLink href={`mailto:${RESUME_DATA.personal.email}`} icon={EnvelopeSimple} title="Send an Email" subtitle={RESUME_DATA.personal.email} />
                     <ActionLink href={`tel:${RESUME_DATA.personal.phone.replace(/\s+/g, "")}`} icon={Phone} title="Call Me" subtitle={RESUME_DATA.personal.phone} />
+                    <ActionLink href={WHATSAPP_URL} newTab icon={WhatsappLogo} title="WhatsApp" subtitle="Message me directly" />
                   </div>
                 </div>
               </div>

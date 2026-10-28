@@ -30,3 +30,14 @@
 - [x] Generate New Logo and Favicon (matching the Dark Tech vibe).
 - [x] Add count-up animation to CGPA score.
 - [x] Fix Experience stacking background so old cards fade out visibly.
+
+## Phase 5: Polish round 2 (2026-10-28)
+- [x] T1 Bridge 3 prompt + reference frames for the user (clip itself: user generates)
+- [ ] T2 (waiting on the user's clip) Integrate bridge 3 frames into `HeroCharacter.tsx` (blocked on T1 output)
+- [x] T3 Navbar uses the brand logo; emerald focus-visible ring sitewide
+- [x] T4 Experience: covered card fully faded before the next card settles
+- [x] T5 Navbar "Connect" link to the footer
+- [x] T6 Smooth scroll for navbar links; navbar scroll logic on Motion `useScroll`
+- [x] T7 WhatsApp floating button: QR + chat button on desktop, direct link on mobile; WhatsApp row in contact dialog
+- [x] T8 Ideas.md: creative directions for Skills, Projects, Certifications
+- [x] T9 Verify (desktop + mobile), lint/typecheck/build, update Memory + handoff, merge into `dev`
