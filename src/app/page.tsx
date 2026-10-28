@@ -6,6 +6,7 @@ import { Certifications } from "@/components/Certifications";
 import { EducationAndLeadership } from "@/components/EducationAndLeadership";
 import { Footer } from "@/components/Footer";
 import { Navbar, BackToTop } from "@/components/Navbar";
+import { WhatsApp } from "@/components/WhatsApp";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <EducationAndLeadership />
       <Footer />
       <BackToTop />
+      <WhatsApp />
     </main>
   );
 }

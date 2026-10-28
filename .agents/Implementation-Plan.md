@@ -27,3 +27,14 @@
 2. Verify Button text contrast (WCAG AA minimum for Emerald/Off-black).
 3. Verify `gpt-taste` hero limits (no 6-line headers, proper container widths).
 4. Perform final performance/accessibility check.
+
+## Step 6: Polish round 2 (2026-10-28, branch `feat/nav-experience-whatsapp`)
+Feedback after the navbar/hero fixes. Tasks are tracked in [Tasks.md](Tasks.md) Phase 5.
+
+1. **Hero bridge 3 (user generates the clip).** Hovering straight onto the middle while he works cuts from frame 14 to 47 (only a blink hides it). A generated working -> smiling-at-viewer clip (frames 175+) will replace the blink. Prompt and reference frames: `.agents/bridge-frames/bridge3_*` and handoff.md.
+2. **Navbar logo.** Use the real brand mark (`src/app/icon.jpg`, neon "N") instead of the text "NP" badge. Replace the browser's white focus ring with an emerald `:focus-visible` ring sitewide.
+3. **Experience fade.** The covered card must be gone by the time the next one is mostly up: opacity fades over the first part of the next card's approach, scale keeps the full range.
+4. **Connect link.** Navbar link "Connect" -> `#contact` (footer).
+5. **Smooth section scroll.** Navbar links scroll smoothly (instant under reduced motion) instead of jumping. Move the navbar's scroll handling to Motion's `useScroll` (taste skill bans raw window scroll listeners).
+6. **WhatsApp.** Floating WhatsApp button (bottom-right, back-to-top sits above it). Desktop: opens a card with a QR code (static SVG in `public/`, generated once, no new dependency) and a "Chat on WhatsApp" button. Mobile: no QR, the button opens WhatsApp directly. Also a WhatsApp row in the contact dialog.
+7. **Ideas only (no build yet).** Creative directions for Skills, Projects and Certifications in [Ideas.md](Ideas.md), for the user to pick from.

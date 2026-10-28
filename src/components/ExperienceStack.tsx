@@ -22,16 +22,18 @@ export function ExperienceStack() {
       cardEls.forEach((card, i) => {
         if (i === cardEls.length - 1) return; // Nothing covers the last card
 
-        gsap.to(card.querySelector(".visual-card"), {
+        const visual = card.querySelector(".visual-card");
+        const next = cardEls[i + 1];
+        gsap.to(visual, {
           scale: 0.85,
+          ease: "none",
+          scrollTrigger: { trigger: next, start: "top bottom", end: "top top", scrub: true },
+        });
+        // gone before the next card settles, so a taller card never peeks out underneath it
+        gsap.to(visual, {
           opacity: 0,
           ease: "none",
-          scrollTrigger: {
-            trigger: cardEls[i + 1],
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
-          },
+          scrollTrigger: { trigger: next, start: "top 85%", end: "top 35%", scrub: true },
         });
       });
     }, ref);
