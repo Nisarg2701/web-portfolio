@@ -9,7 +9,7 @@ const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
 // frames are kept in Cache Storage too, so repeat visits don't depend on the browser's HTTP cache
 // (bump the version whenever the frames change; older caches are deleted)
-const CACHE = "hero-frames-v2";
+const CACHE = "hero-frames-v3";
 const POOL = 6; // parallel downloads
 const range = (a: number, b: number) => {
   const out: number[] = [];

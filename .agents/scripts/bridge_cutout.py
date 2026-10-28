@@ -16,6 +16,7 @@ import numpy as np
 BOX = (278, 27, 1374, 978)  # x, y, w, h: same crop as public/hero-frames
 T0, T1 = 4.0, 16.0  # Lab distance: below T0 = background, above T1 = solid (fitted on frames 14 and 47: IoU 0.99)
 HOLE = 2500  # px
+RING_CHROMA = 2.5  # median Lab chroma around a hole: skin >= 2.9, hair/headphone gaps <= 2.3 (measured)
 EDGE = 3  # px of soft edge band inside the outline
 SPREAD = 6  # px: how far interior colours are spread to estimate edge colours
 HALO_L = 6  # Lab L: edge pixels at most this much darker than the wall count as halo
@@ -49,10 +50,20 @@ def matte(rgb, t0=T0, t1=T1):
     n, lbl, stats, _ = cv2.connectedComponentsWithStats(solid, 8)
     keep = (lbl == 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])).astype(np.uint8)
     # fill only small holes (eye whites, highlights); big ones are real gaps, e.g. inside the headband
+    # A small hole is part of him only when skin surrounds it (eye whites, eye corners); one ringed by
+    # colourless hair/headphones is wall showing through a gap and must stay see-through.
     holes = (1 - keep).astype(np.uint8)
     n, hl, hs, _ = cv2.connectedComponentsWithStats(holes, 4)
-    small = np.isin(hl, [i for i in range(1, n) if hs[i, cv2.CC_STAT_AREA] < HOLE])
-    filled = keep | small.astype(np.uint8)
+    chroma_abs = np.hypot(lab[..., 1], lab[..., 2])
+    fill, gaps = [], []
+    for i in range(1, n):
+        if hs[i, cv2.CC_STAT_AREA] >= HOLE:
+            continue
+        m = (hl == i).astype(np.uint8)
+        ring = (cv2.dilate(m, np.ones((7, 7), np.uint8)) > 0) & (m == 0)
+        (fill if np.median(chroma_abs[ring]) >= RING_CHROMA else gaps).append(i)
+    filled = keep | np.isin(hl, fill).astype(np.uint8)
+    gap = np.isin(hl, gaps)
     # solid only well inside the outline; along the edge alpha follows the colour distance, so
     # antialiased pixels that are mostly background don't come out as a white fringe
     core = cv2.erode(filled, np.ones((2 * EDGE + 1, 2 * EDGE + 1), np.uint8)) > 0
@@ -72,7 +83,7 @@ def matte(rgb, t0=T0, t1=T1):
     proj = np.clip(((img - bg) * FB).sum(-1) / np.maximum(den, 1e-3), 0, 1)
     # where the figure is almost wall-coloured the projection is unstable: keep the distance ramp
     a = np.where(den > 30**2, proj, a)
-    a = np.where(core, 1.0, np.where(near & ~halo, a, 0.0))
+    a = np.where(core, 1.0, np.where(near & ~halo & ~gap, a, 0.0))
     fg = np.where(core[..., None], img, F)  # edges take the interior colour, so no wall tint
     fg = np.where(a[..., None] > 0.02, np.clip(fg, 0, 255), 0)
     return np.dstack([fg, a * 255]).astype(np.uint8)
