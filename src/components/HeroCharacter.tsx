@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { DONE, G0, GE, GREET, IDLE, POINT, WAVE, glance, greeting, isJump, range } from "@/components/heroFrames";
 
 const FPS = 12; // the source clips were cut at 12fps
+// bump whenever the frames change: it's in the URLs (frames are HTTP-cached for a week, see
+// next.config.ts) and in the Cache Storage name (older caches are deleted)
+const VERSION = 5;
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
-  `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
+  `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp?v=${VERSION}`;
 // frames are kept in Cache Storage too, so repeat visits don't depend on the browser's HTTP cache
-// (bump the version whenever the frames change; older caches are deleted)
-const CACHE = "hero-frames-v4";
+const CACHE = `hero-frames-v${VERSION}`;
 const POOL = 6; // parallel downloads
 
 type Zone = "left" | "center" | "right";
