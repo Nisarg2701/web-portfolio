@@ -36,6 +36,10 @@ npm run dev
 - `cd16f7d` also contains the C1–C7 content fixes (data file, `resume.ts` years calculation, CTA removal), because they were in the shared working tree when it was committed.
 - `.agents/bridge-frames/` (untracked) holds the reference PNGs used to generate the bridge clips.
 - `public/images/profile.jpg` is no longer referenced anywhere (kept on purpose).
+- 2026-10-28 hero fixes (Areas-to-Work.md section 6): phones use `public/hero-frames/sm/` (800px copies, regenerate them whenever the full frames change and bump `CACHE` in `HeroCharacter.tsx`); frames go through Cache Storage with retries; no autoplay on touch ("Tap me" hint); every greeting glides to `#intro`; 250ms center dwell on desktop.
+
+## Navigation (2026-10-28)
+- `src/components/Navbar.tsx`: fixed top navbar (hide on scroll down, show on scroll up, mobile menu, "Get In Touch" opens the contact dialog) and `BackToTop`. Section ids: `skills`, `experience`, `projects`, `certifications`, `background`, `contact`.
 
 ## Deployment
 - Vercel project `portfolio-app` (team "nisarg2701's projects") is linked to `Nisarg2701/web-portfolio`. Pushes to `main` deploy to production at https://nisarg-pakhawala-portfolio.vercel.app; pushes to `dev` create preview deployments.

@@ -2,7 +2,7 @@ import { RESUME_DATA } from "@/data/resume";
 
 export function BentoGrid() {
   return (
-    <section className="py-24 px-6 max-w-7xl mx-auto">
+    <section id="skills" className="py-24 px-6 max-w-7xl mx-auto">
       <div className="mb-16">
         <h2 className="text-4xl md:text-5xl font-semibold text-zinc-50 tracking-tighter">Technical Arsenal</h2>
       </div>
