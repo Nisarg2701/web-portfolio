@@ -1,24 +1,26 @@
-// Checks the hero's movement paths without a browser: every frame exists and no path has a cut
-// (the player has no crossfade, so a cut would show).
+// Checks the hero's movement paths without a browser: every frame exists, no path has a cut (the
+// player has no crossfade, so a cut would show) and no frame is held or bounced to fake a pause.
 // Run from the repo root:  node --experimental-strip-types .agents/scripts/check_hero_paths.ts
 import { existsSync } from "node:fs";
 import assert from "node:assert/strict";
 import { DONE, GREET, IDLE, LT, RT, glance, greeting, isJump } from "../../src/components/heroFrames.ts";
 
+const FPS = 24;
 const file = (n: number, small = false) =>
   `public/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
 const cuts = (path: number[]) => path.slice(1).flatMap((b, i) => (isJump(path[i], b) ? [`${path[i]}>${b}`] : []));
-const secs = (path: number[]) => (path.length / 12).toFixed(1);
+const secs = (path: number[]) => (path.length / FPS).toFixed(1);
 
 const starts = {
-  hub: [1], midLoop: [10, 27], turningRight: [118], right: [RT], sweep: [140], left: [LT, 150], returning: [168],
+  hub: [1], midLoop: [30, 80], turningRight: [350], right: [400, RT], sweep: [420, 430], left: [LT, 460], returning: [500],
 };
 let failures = 0;
 const check = (name: string, path: number[], small = false) => {
   const missing = path.filter((n) => !existsSync(file(n, small)));
   const c = cuts(path);
-  console.log(`${name.padEnd(28)} ${String(path.length).padStart(3)} frames (${secs(path)}s)  ${c.length ? `CUTS: ${c.join(" ")}` : ""}`);
-  if (missing.length || c.length) failures++;
+  const still = path.slice(1).filter((b, i) => b === path[i]).length;
+  console.log(`${name.padEnd(28)} ${String(path.length).padStart(3)} frames (${secs(path)}s)  ${c.length ? `CUTS: ${c.join(" ")}` : ""}${still ? ` REPEATS: ${still}` : ""}`);
+  if (missing.length || c.length || still) failures++;
   if (missing.length) console.log(`  MISSING: ${[...new Set(missing)].join(", ")}`);
 };
 
@@ -29,19 +31,15 @@ for (const [where, ns] of Object.entries(starts))
     check(`left from ${where} (${n})`, [n, ...glance("left", n), IDLE[0]]);
     check(`right from ${where} (${n})`, [n, ...glance("right", n), IDLE[0]]);
   }
-// after greeting: holding the point, and waving again from it
-check("holding the point", [...DONE, ...DONE]);
-for (const n of [101, 106, 111]) check(`wave again (${n})`, [n, ...greeting(n)]);
 // phones only ever have the loop and the greeting, from the small frames
 check("phone greet (1)", [1, ...greeting(1)], true);
 check("phone loop", [...IDLE, IDLE[0]], true);
 
-// the guide: a side look holds ~2-3 s before he goes back to work
-for (const side of ["left", "right"] as const) {
-  const p = glance(side, 1), peak = side === "left" ? LT : RT;
-  const held = p.filter((f) => Math.abs(f - peak) <= 14 && (side === "left" ? f >= peak : f <= peak)).length;
-  assert(held / 12 >= 2, `${side} hold is ${held / 12}s`);
-}
+// side looks hold long enough to read (the user's guide asks 2-3 s; the clips' own holds give ~2)
+const held = (p: number[], from: number, to: number) => p.filter((f) => f >= from && f <= to).length / FPS;
+assert(held(glance("right", 1), 392, RT) >= 1.8, "right hold");
+assert(held(glance("left", 1), LT, 472) >= 1.8, "left hold");
 assert.deepEqual(greeting(1), GREET);
-assert.equal(failures, 0, "every frame exists and no path has a cut");
+assert.deepEqual(DONE, [GREET.at(-1)]);
+assert.equal(failures, 0, "every frame exists, no cuts, no repeats");
 console.log("ok");

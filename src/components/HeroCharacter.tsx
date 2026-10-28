@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DONE, G0, GE, GREET, IDLE, POINT, WAVE, glance, greeting, range } from "@/components/heroFrames";
+import { DONE, G0, GREET, IDLE, LAST, POINT, WAVE, glance, greeting, range } from "@/components/heroFrames";
 
-const FPS = 12; // the source clips were cut at 12fps
+const FPS = 24; // every frame of the clips, at their own speed
 // bump whenever the frames change: it's in the URLs (frames are HTTP-cached for a week, see
 // next.config.ts) and in the Cache Storage name (older caches are deleted)
-const VERSION = 7;
+const VERSION = 8;
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp?v=${VERSION}`;
@@ -127,12 +127,10 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       setMessage(next === "greet" ? "Hey, it's you!" : next === "idle" && coarse ? "Tap me" : MESSAGES[next] ?? null);
     };
 
-    // `tap`: a deliberate click/tap, which can also wave again after the greeting. Resting the cursor
-    // on the middle after the greeting would just loop it, and the glances have his headphones on,
-    // so once he has greeted he keeps pointing until a tap (or he's scrolled away).
-    const enter = (zone: Zone, tap = false) => {
-      if (mode === "greet") return;
-      if (mode === "done" && (zone !== "center" || !tap)) return;
+    // Once he has greeted he keeps pointing until he's scrolled away (then he's back at work): every
+    // other clip has his headphones on, so there is nothing to move on to from here.
+    const enter = (zone: Zone) => {
+      if (mode === "greet" || mode === "done") return;
       if (zone === "center") {
         setMode("greet", greeting(shown));
         loadAll(list); // in case these frames are still queued behind others
@@ -222,7 +220,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     // a click on the image's left/right third glances that way, the middle greets; on phones any tap greets
     const onTap = (e: MouseEvent) => {
       clearTimeout(dwell);
-      enter(small ? "center" : zoneAt(e.clientX), true);
+      enter(small ? "center" : zoneAt(e.clientX));
     };
     canvas.addEventListener("click", onTap);
 
@@ -244,7 +242,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       await loadAll(IDLE);
       await loadAll(GREET);
       if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
-      if (!small) await loadAll(range(G0, GE));
+      if (!small) await loadAll(range(G0, LAST)); // glances and the bridges from them
     })();
 
     return () => {

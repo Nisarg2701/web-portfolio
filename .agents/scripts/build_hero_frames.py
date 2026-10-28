@@ -1,13 +1,16 @@
-r"""Rebuild public/hero-frames from the three magenta clips (all start on the hub frame).
+r"""Rebuild public/hero-frames from the magenta clips (loop, greeting and glances start on the hub frame;
+the bridges start on the glance clip's side looks and run into the greeting).
 
-Usage: python .agents/scripts/build_hero_frames.py LOOP GREETING GLANCES
+Usage: python .agents/scripts/build_hero_frames.py LOOP GREETING GLANCES BRIDGE_RIGHT BRIDGE_LEFT
 (each a clip, or a folder of its frames as 001.png ...; the sources live in .agents/bridge-frames/fresh/)
 
-Keeps every 3rd source frame; played at 12 fps that's 1.5x real time (the user found real time
-too slow and 2x too fast). Numbered to match src/components/heroFrames.ts:
-  1-32     loop      (source 1, 4 ... 94; 95 is ~frame 1, so the wrap is seamless)
-  33-111   greeting  (source 4, 7 ... 238; source 1 is the hub, already shown)
-  112-174  glances   (source 4, 7 ... 190)
+Keeps every source frame, played at 24 fps: the clips' own speed (the user tried 1.5x and 2x and
+wants it natural). Numbered to match src/components/heroFrames.ts:
+  1-94     loop          (source 1-94; 95 is ~frame 1, so the wrap is seamless)
+  95-332   greeting      (source 2-239; source 1 is the hub, already shown)
+  333-522  glances       (source 2-191)
+  523-559  bridge right  (source 1-37; 37 hands over to greeting source 33)
+  560-621  bridge left   (source 1-62; 62 hands over to greeting source 34)
 Writes frame_NNN.webp (1374x978, quality 80) and an 800px copy in sm/. Old frames are deleted first.
 """
 import subprocess
@@ -23,8 +26,7 @@ from magenta_key import key  # noqa: E402
 
 OUT = Path(__file__).resolve().parents[2] / "public" / "hero-frames"
 W, H = 1374, 978
-STEP = 3
-CLIPS = [(1, 94), (4, 238), (4, 190)]  # first and last source frame kept per clip
+CLIPS = [(1, 94), (2, 239), (2, 191), (1, 37), (1, 62)]  # first and last source frame kept per clip
 
 
 def resize(rgba, w, h):
@@ -43,8 +45,8 @@ def save(rgba, path):
 def main(paths):
     # each input is a clip or a folder of its frames already extracted as 001.png, 002.png ...
     missing = [p for p in paths if not Path(p).exists()]
-    if len(paths) != 3 or missing:
-        sys.exit(f"need LOOP GREETING GLANCES; missing: {missing}")
+    if len(paths) != len(CLIPS) or missing:
+        sys.exit(f"need LOOP GREETING GLANCES BRIDGE_RIGHT BRIDGE_LEFT; missing: {missing}")
     (OUT / "sm").mkdir(parents=True, exist_ok=True)
     for f in [*OUT.glob("frame_*.webp"), *(OUT / "sm").glob("frame_*.webp")]:
         f.unlink()
@@ -55,7 +57,7 @@ def main(paths):
             if Path(clip).is_file():
                 subprocess.run(["ffmpeg", "-v", "error", "-i", clip, f"{tmp}/%03d.png"], check=True)
                 src = tmp
-            for s in range(first, last + 1, STEP):
+            for s in range(first, last + 1):
                 rgb = cv2.cvtColor(cv2.imread(f"{src}/{s:03d}.png"), cv2.COLOR_BGR2RGB)
                 k = key(rgb)
                 n += 1
@@ -65,4 +67,4 @@ def main(paths):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:4])
+    main(sys.argv[1:])
