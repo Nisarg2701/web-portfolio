@@ -6,7 +6,7 @@ import { DONE, G0, GE, GREET, IDLE, POINT, WAVE, glance, greeting, isJump, range
 const FPS = 12; // the source clips were cut at 12fps
 // bump whenever the frames change: it's in the URLs (frames are HTTP-cached for a week, see
 // next.config.ts) and in the Cache Storage name (older caches are deleted)
-const VERSION = 5;
+const VERSION = 6;
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp?v=${VERSION}`;

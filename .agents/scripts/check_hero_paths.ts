@@ -9,7 +9,7 @@ const file = (n: number, small = false) =>
 // a "cut" is a jump that gets a crossfade; steps within a clip and joins through the hub are not cuts
 const cuts = (path: number[]) => path.slice(1).flatMap((b, i) => (isJump(path[i], b) ? [`${path[i]}>${b}`] : []));
 
-const starts = { hub: [1], working: [20], turningRight: [180], right: [RT], sweep: [215], left: [LT, 240], returning: [255] };
+const starts = { hub: [1], working: [10], turningRight: [92], right: [RT], sweep: [108], left: [LT, 120], returning: [127] };
 let failures = 0;
 const check = (name: string, path: number[], small = false) => {
   const missing = path.filter((n) => !existsSync(file(n, small)));
@@ -27,8 +27,10 @@ for (const [where, ns] of Object.entries(starts))
     const g = check(`greet from ${where} (${n})`, [n, ...greeting(n)]);
     const l = check(`left from ${where} (${n})`, [n, ...glance("left", n), IDLE[0]]);
     const r = check(`right from ${where} (${n})`, [n, ...glance("right", n), IDLE[0]]);
-    // only leaving mid-loop is a cut; anything starting on the hub or the glance clip is continuous
-    if (n !== 20) for (const p of [g, l, r]) assert.equal(cuts(p).length, 0, `no cuts from ${where} (${n})`);
+    // leaving mid-loop is a cut; so is greeting mid-glance (straight to the viewer); the rest is continuous
+    if (n !== 10) for (const p of [l, r]) assert.equal(cuts(p).length, 0, `no cuts from ${where} (${n})`);
+    if (n !== 10) assert.equal(cuts(g).length, n === 1 ? 0 : 1, `greeting from ${where} (${n})`);
+    if (n !== 1) assert(!g.some((f) => f === G0 || f === GE), `greeting from ${where} (${n}) doesn't go back to work first`);
   }
 // phones only ever have the loop and the greeting, from the small frames
 check("phone greet (1)", [1, ...greeting(1)], true);
