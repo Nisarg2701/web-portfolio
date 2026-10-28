@@ -31,18 +31,17 @@ const DONE = [...range(END, 100), ...range(101, END - 1)]; // rests within the h
 // (flows into 32), 139-174 left glance (flows on from 22) -> smiling at the viewer (flows into 47).
 const B1 = range(121, 138);
 const B2 = range(139, 174);
+// 175-222 working -> looks up and smiles at the viewer (flows into 47); its first frame matches 14
+// and its last matches 47 to within a pixel, so it needs no size match
+const B3 = range(175, 222);
 // joins that are continuous even though the frame numbers jump
-const SEAMLESS = new Set(["138>32", "32>138", "22>139", "174>47"]);
+const SEAMLESS = new Set(["138>32", "32>138", "22>139", "174>47", "222>47"]);
 const isJump = (a: number, b: number) => Math.abs(a - b) > 6 && !SEAMLESS.has(`${a}>${b}`);
 
 // The camera slowly pulls back through the clip, so at a cut the new frame is a bit smaller.
 // [from, to, scale, dx, dy]: drawing `to` as scale*p + (dx, dy) lines it up with `from`
 // (fitted on the whole figure; working frames 1-14 share frame 14's geometry).
-const S14_30 = 1.0374;
 const WARPS: [number, number, number, number, number][] = [
-  [14, BLINK, S14_30, -15.0, -8.6],
-  [BLINK, 14, 1 / S14_30, 15.0 / S14_30, 8.6 / S14_30], // exact inverse, so there-and-back matches
-  [BLINK, 47, 1.0336, -27.3, -18.0],
   // bridge joins (fitted on the exported cutouts)
   [14, 121, 1.0106, -8.6, -7.4],
   [121, 14, 1 / 1.0106, 8.6 / 1.0106, 7.4 / 1.0106],
@@ -202,8 +201,8 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       if (shown >= BLINK && shown <= 43) return [...range(shown, 43), ...GREET];
       // left side: back to the glance, then bridge 2 turns him to the viewer and into the greeting
       if (onTake()) return [...range(shown, L), ...B2, ...range(47, END)];
-      // from working he sits up for the greeting, which no size match hides, so he blinks into it
-      return [BLINK, BLINK, BLINK, ...range(47, END)];
+      // from working (or a finished greeting) bridge 3 lifts his head to the viewer
+      return [...B3, ...range(47, END)];
     };
 
     // `tap`: a deliberate click/tap, which can also restart him after the greeting. Resting the
@@ -352,10 +351,10 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     io.observe(canvas);
 
     // Load in stages so each batch gets the bandwidth: the working loop first, then the greeting
-    // (plus the blink frame it opens with from working), then the glances.
+    // (plus bridge 3, which leads into it from working), then the glances.
     (async () => {
       await loadAll(range(1, 14));
-      await loadAll([BLINK, ...GREET]);
+      await loadAll([...B3, ...GREET]);
       if (!cancelled && coarse && mode === "idle") setMessage("Tap me");
       await loadAll([...range(15, 43), ...B1, ...B2]);
     })();
