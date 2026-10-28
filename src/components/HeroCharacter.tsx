@@ -9,7 +9,7 @@ const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
 // frames are kept in Cache Storage too, so repeat visits don't depend on the browser's HTTP cache
 // (bump the version whenever the frames change; older caches are deleted)
-const CACHE = "hero-frames-v1";
+const CACHE = "hero-frames-v2";
 const POOL = 6; // parallel downloads
 const range = (a: number, b: number) => {
   const out: number[] = [];
@@ -31,9 +31,9 @@ const DONE = [...range(END, 100), ...range(101, END - 1)]; // rests within the h
 // (flows into 32), 139-174 left glance (flows on from 22) -> smiling at the viewer (flows into 47).
 const B1 = range(121, 138);
 const B2 = range(139, 174);
-// 175-222 working -> looks up and smiles at the viewer (flows into 47); its first frame matches 14
-// and its last matches 47 to within a pixel, so it needs no size match
-const B3 = range(175, 222);
+// even frames 176-222 (every other frame of the clip, 2s): working -> looks up and smiles at the
+// viewer (flows into 47); its ends match 14 and 47 to within a pixel, so it needs no size match
+const B3 = range(176, 222).filter((n) => n % 2 === 0);
 // joins that are continuous even though the frame numbers jump
 const SEAMLESS = new Set(["138>32", "32>138", "22>139", "174>47", "222>47"]);
 const isJump = (a: number, b: number) => Math.abs(a - b) > 6 && !SEAMLESS.has(`${a}>${b}`);

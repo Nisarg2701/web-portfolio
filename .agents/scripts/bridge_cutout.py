@@ -16,6 +16,9 @@ import numpy as np
 BOX = (278, 27, 1374, 978)  # x, y, w, h: same crop as public/hero-frames
 T0, T1 = 4.0, 16.0  # Lab distance: below T0 = background, above T1 = solid (fitted on frames 14 and 47: IoU 0.99)
 HOLE = 2500  # px
+EDGE = 3  # px of soft edge band inside the outline
+SPREAD = 6  # px: how far interior colours are spread to estimate edge colours
+HALO_L = 6  # Lab L: edge pixels at most this much darker than the wall count as halo
 
 
 def fit_bg(img, mask_bg):
@@ -50,11 +53,27 @@ def matte(rgb, t0=T0, t1=T1):
     n, hl, hs, _ = cv2.connectedComponentsWithStats(holes, 4)
     small = np.isin(hl, [i for i in range(1, n) if hs[i, cv2.CC_STAT_AREA] < HOLE])
     filled = keep | small.astype(np.uint8)
+    # solid only well inside the outline; along the edge alpha follows the colour distance, so
+    # antialiased pixels that are mostly background don't come out as a white fringe
+    core = cv2.erode(filled, np.ones((2 * EDGE + 1, 2 * EDGE + 1), np.uint8)) > 0
     near = cv2.dilate(filled, np.ones((5, 5), np.uint8)) > 0
     a = np.clip((d - t0) / (t1 - t0), 0, 1)
-    a = np.where(filled > 0, 1.0, np.where(near, a, 0.0))
-    # edge colour decontamination: remove the background's share from semi-transparent pixels
-    fg = (img - (1 - a[..., None]) * bg) / np.maximum(a[..., None], 1e-3)
+    # generated video has sharpening halos: a rim lighter than the wall and colourless, which the
+    # distance alone reads as foreground and shows as a white outline
+    chroma = np.hypot(lab[..., 1] - bg_lab[..., 1], lab[..., 2] - bg_lab[..., 2])
+    halo = (lab[..., 0] > bg_lab[..., 0] - HALO_L) & (chroma < 8)
+    # Edge pixels mix the figure's colour F with the wall B: I = a*F + (1-a)*B. F is taken from the
+    # nearest solid interior (core colours spread outward), and a is how far I sits from B toward F.
+    k = (2 * SPREAD + 1, 2 * SPREAD + 1)
+    cf = core.astype(np.float32)
+    F = cv2.blur(img * cf[..., None], k) / np.maximum(cv2.blur(cf, k), 1e-3)[..., None]
+    FB = F - bg
+    den = (FB * FB).sum(-1)
+    proj = np.clip(((img - bg) * FB).sum(-1) / np.maximum(den, 1e-3), 0, 1)
+    # where the figure is almost wall-coloured the projection is unstable: keep the distance ramp
+    a = np.where(den > 30**2, proj, a)
+    a = np.where(core, 1.0, np.where(near & ~halo, a, 0.0))
+    fg = np.where(core[..., None], img, F)  # edges take the interior colour, so no wall tint
     fg = np.where(a[..., None] > 0.02, np.clip(fg, 0, 255), 0)
     return np.dstack([fg, a * 255]).astype(np.uint8)
 

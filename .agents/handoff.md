@@ -52,8 +52,8 @@ Branch `feat/nav-experience-whatsapp`. Plan: Implementation-Plan.md Step 6; chec
 - Ideas for Skills / Projects / Certifications: `.agents/Ideas.md` (not built).
 
 ### Hero bridge 3 (done 2026-10-28, branch `feat/hero-bridge-3`)
-- Source: user-generated 1920x1080 clip, 24 fps, 3.96 s (95 frames). Every other frame kept -> 48 frames at 12 fps = 4 s, stored as frames 175-222 (+ `sm/` copies).
+- Source: user-generated 1920x1080 clip, 24 fps, 3.96 s (95 frames). Every other video frame -> 48 frames (175-222); the user found 4 s too slow, so only the even ones (176, 178 ... 222) are kept and played: 24 frames, 2 s at 12 fps (+ `sm/` copies). The odd frames were deleted (in git history at `482c640` if the 4 s version is wanted back).
 - Plays in `greeting()` whenever he isn't already turned toward a side (from working, or tapped again after a greeting), replacing the old blink cut 14 -> 30 -> 47. Its first frame matches 14 and its last matches 47 to within ~1px, so no `WARPS` entry; `222>47` is in `SEAMLESS`. The now-unused blink warps were removed.
 - Cut-out pipeline: `.agents/scripts/bridge_cutout.py` (the scripts behind the original 174 frames weren't kept). It crops the shared box (278, 27, 1374x978), keys out the off-white background and fills only small holes, so gaps such as inside the headband stay transparent. Usage is in its docstring.
 - Reference stills and prompt used: `.agents/bridge-frames/bridge3_*` (untracked, like the others).
-- Note: the clip spends its first ~1.3 s still typing before he looks up. To make the hover reaction quicker, start `B3` later (e.g. `range(185, 222)`).
+- The first cut had a light grey outline (the generator's sharpening halo, plus edge pixels made too opaque). `bridge_cutout.py` now takes edge alpha from the colour of the solid interior next to them and drops halo pixels; outline rim pixels went from ~800 to under 45 per frame (shipped frames: ~63). `CACHE` bumped to `hero-frames-v2` so browsers drop the old versions.
