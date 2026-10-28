@@ -78,4 +78,6 @@
 - [x] P5 Verify (path check, offline path render, live load in the pane), update docs, merge into dev
 - [x] P6a User feedback: greeting from a side went back to work first; animation slow. Fixed: side greeting enters the greeting from the nearest forward-facing glance frame; frames rebuilt at every 4th source frame (2x speed, half the download)
 - [x] P6b User: 2x too fast, 1x too slow; crossfades look bad. Rebuilt at every 3rd frame (1.5x); all crossfades replaced by measured frame matches; side holds ~2.5 s per the user's guide; after greeting, a tap waves again
-- [ ] P7 User generates two bridge clips (right look -> smile, left look -> smile) so greeting from a side is direct; then add them to the build and the paths
+- [x] P7 User generates two bridge clips (right look -> smile, left look -> smile); added to the build and the paths
+- [x] P8 User: back to natural speed (every frame at 24 fps), no repeated frames (no bounce holds, no ping-pong at the end, no rewind-to-wave)
+- [ ] P9 User review at 24 fps; decide whether the download (32 MB desktop / 9.6 MB phones) needs trimming
