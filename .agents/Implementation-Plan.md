@@ -73,3 +73,12 @@ Optional later, only if returning to the hub before greeting from a side feels s
 **As built (clips in 2026-10-28):** crop box widened to (208, 0, 1518, 1080), scaled to the same 1374x978 canvas. Frames at 12 fps (every other source frame): loop 1-47, greeting 48-166, glance clip 167-261. The glance clip is one line, hub -> right hold -> sweep -> left hold -> hub; glances walk along it forward or backward (left from the hub = its end played backward), so holds are the clip's own natural holds played there and back. Greeting from a side walks back to the nearest hub end first. Any jump that isn't hub-to-hub keeps the short crossfade.
 
 **Pilot check before making the other two:** first and last frames must match the hub (measured, after keying); the figure must not drift in size or position through the clip; the magenta must stay flat. If drift shows up, adjust the prompt before generating the rest.
+
+## Step 10: Hero rebuild from the 5 clips, shortest-path player (2026-10-28, branch `feat/hero-graph-rebuild`)
+**Why:** on a fresh load, returning to work after a glance played "junk" (typing too fast, then the headphone lift). Suspected cause: the old player caught up by up to 6 frames per draw whenever the main thread was busy decoding frames (always the case on a fresh load), and hand-written paths with special cases. The user asked for all old frames to be removed and a from-scratch rebuild "in the most optimal way possible".
+
+**Approach:**
+- `build_hero_frames.py` keys every frame of the 5 clips, measures all frames against each other (128px premultiplied copies), and allows a cut between clips only where the two frames differ no more than the motion already happening there (max(1.2, local step)). Same-pose frames of two clips differ by ~0.5.
+- Nodes are (frame, direction); only the glance clip plays backwards, and only changes direction on still frames (the holds). For each goal (work, right, left, greet) a Dijkstra search gives every node its next node on the quickest seamless path. The table ships as `src/components/heroGraph.json`; the player only follows it.
+- Only frames some path can show are exported: 1280px desktop (shown at most 640 CSS px wide) + 800px phones, webp q78 method 6.
+- Player: exactly one frame per 1/24 s (never skips frames to catch up; if late, it slows down), frames pre-decoded with `img.decode()` before they count as ready, waits on frames that haven't arrived.
