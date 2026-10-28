@@ -1,6 +1,6 @@
 r"""Key a character out of a flat magenta (#FF00FF-ish) background, in the hero frames' crop box.
 
-key(rgb_1920x1080) -> RGBA 1374x978.
+key(rgb_1920x1080) -> RGBA 1518x1080 (the BOX); build_hero_frames.py scales it to 1374x978.
 "Magenta-ness" = min(R, B) - G: ~214 on the background, <= ~20 on him (skin, navy shirt, grey
 headphones and green eyes all have G >= min(R, B)), so it separates cleanly. Edge pixels are
 unmixed against the measured background colour, which also removes the magenta tint.
@@ -11,7 +11,7 @@ Usage for a new clip (24 fps): extract frames with ffmpeg, key() each, keep the 
 import cv2
 import numpy as np
 
-BOX = (278, 27, 1374, 978)  # x, y, w, h: same crop as public/hero-frames
+BOX = (208, 0, 1518, 1080)  # x, y, w, h: fits the greeting's elbows and headband; scaled to 1374x978 on export
 SOLID, CLEAR = 40.0, 190.0  # magenta-ness at or below SOLID = fully him, at or above CLEAR = background
 
 

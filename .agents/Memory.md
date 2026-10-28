@@ -23,7 +23,8 @@ Long-lived context about the user and their preferences. Current state and next 
 2. **Redesigns**: timeline/terminal UI (disliked, "lame"); Education as a big bento; GSAP ScrollTrigger projects; footer resume modal.
 3. **Polish**: experience stacking fix, glassmorphic projects, stacked certificate rows, `<object>` PDF viewer, CGPA count-up.
 4. **2026-10-25/26**: audit and fixes, deployed to Vercel; animated canvas hero character replaced the profile photo.
-5. **2026-10-28** (unpushed, on `dev`): hero mobile fixes, navbar, back-to-top, WhatsApp, brand logo; bridge 3; project pan and certificate wallet; skills experiments rejected, bento restored; AI tools added; phones load only loop + greeting; magenta glance clip; greeting paths fixed. A size-jump between clips led the user to plan a **fresh set of hero clips around one hub frame** (handoff "Active task"). Don't patch the old frame set further.
+5. **2026-10-28** (unpushed, on `dev`): hero mobile fixes, navbar, back-to-top, WhatsApp, brand logo; bridge 3; project pan and certificate wallet; skills experiments rejected, bento restored; AI tools added; phones load only loop + greeting; magenta glance clip; greeting paths fixed. A size-jump between clips led the user to rebuild the hero from **three fresh clips around one hub frame** (loop, greeting, glances; Omni 1.1 Flash in Google Flow). Built the same day: 261 frames, wider crop, player walks segments through the hub, no size matching.
+- Clip prompts the user wants: one copyable block with the settings inside (start frame by file name only, end frame only if there is one, length, aspect ratio; no frame rate or audio), an "Avoid:" line inside the prompt, timestamped beats. Hard moves are solved in the wording (headphones: slide back over the head so the band never crosses the face), not dropped.
 
 ## Security
 - `portfolio-data.json` is not served from `public/`, but client components bundle the data they read. It is all public info.
