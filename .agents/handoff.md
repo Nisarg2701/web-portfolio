@@ -31,7 +31,7 @@ npm run dev
 - Experience entries now carry `start`/`end` ("YYYY-MM"); `resume.ts` derives "N+ years" from them for the Hero and summary. A job counts end − start months (Jun→Jul = 1); overlapping months count once. Labels by leftover months: 0 "x", 1–2 "x+", 3–5 "~x.5", 6 "x.5", 7–8 "x.5+", 9–11 "~x+1" (`BANDS` in `resume.ts`). Current total: 35 months, shown as "~3 years". Add both fields to any new job.
 
 ## Animated hero (commit `cd16f7d`, live since 2026-10-26)
-- **Animated hero character** replaces the profile photo: `src/components/HeroCharacter.tsx` plays a canvas frame sequence from `public/hero-frames/` (174 webp frames, ~8 MB, including two generated bridge clips). It reacts to the cursor, glances left/right, greets, then glides to a new `#intro` section. Reduced motion is handled.
+- **Animated hero character** replaces the profile photo: `src/components/HeroCharacter.tsx` plays a canvas frame sequence from `public/hero-frames/` (222 webp frames, including three generated bridge clips; 800px phone copies in `sm/`). It reacts to the cursor, glances left/right, greets, then glides to a new `#intro` section. Reduced motion is handled.
 - `src/components/Hero.tsx` was split: a greeting ("Hey there! I'm Nisarg…") plus the character, then the headline moved into `#intro`.
 - `cd16f7d` also contains the C1–C7 content fixes (data file, `resume.ts` years calculation, CTA removal), because they were in the shared working tree when it was committed.
 - `.agents/bridge-frames/` (untracked) holds the reference PNGs used to generate the bridge clips.
@@ -51,10 +51,9 @@ Branch `feat/nav-experience-whatsapp`. Plan: Implementation-Plan.md Step 6; chec
 - WhatsApp: `src/components/WhatsApp.tsx` + `public/whatsapp-qr.svg`. The QR was generated once with Python `qrcode` (installed only in a scratch folder, not a project dependency). **If the phone number changes, regenerate the QR** (any QR generator, content `https://wa.me/<digits only>`, black on transparent SVG).
 - Ideas for Skills / Projects / Certifications: `.agents/Ideas.md` (not built).
 
-### Open: hero bridge 3 (needs the user's generated clip)
-Hovering straight onto the middle while he works cuts from frame 14 to 47 behind a blink (`greeting()` last branch in `HeroCharacter.tsx`). Bridge 3 replaces that blink.
-- Start frame: `.agents/bridge-frames/bridge3_start_working_f014.png` (working, eyes on the laptop). End frame: `.agents/bridge-frames/bridge3_end_greeting_f047.png` (smiling at the viewer).
-- Generate with a first/last-frame video model (same tool as bridges 1 and 2), ~2 s, 16:9, 1920x1080. Prompt:
-  > 3D animated cartoon man with short dark hair, a trimmed beard and green eyes, wearing dark grey over-ear headphones and a navy blue shirt, sitting behind a dark grey Dell laptop in front of a plain off-white wall. He is typing and looking down at the laptop screen with a calm, focused expression. He notices someone, stops typing, and slowly raises his head and eyes to look straight into the camera, his eyes opening a little wider as he breaks into a warm, friendly closed-mouth smile. He ends looking directly at the camera, smiling gently, hands resting on the keyboard. Static locked-off camera, same framing and lighting throughout, no cuts, smooth natural motion.
-  > Negative: camera movement, zoom, pan, headphones coming off, waving, talking, open mouth, text, watermark, extra people, background change.
-- Integration (Claude): cut the clip to 12 fps, remove the background and crop it to the shared box like the other frames (also an `sm/` copy), store as frames 175+, play it in `greeting()` instead of `[BLINK, BLINK, BLINK]`, add size-match `WARPS` for 14>175 and end>47, and bump `CACHE` to `hero-frames-v2`.
+### Hero bridge 3 (done 2026-10-28, branch `feat/hero-bridge-3`)
+- Source: user-generated 1920x1080 clip, 24 fps, 3.96 s (95 frames). Every other frame kept -> 48 frames at 12 fps = 4 s, stored as frames 175-222 (+ `sm/` copies).
+- Plays in `greeting()` whenever he isn't already turned toward a side (from working, or tapped again after a greeting), replacing the old blink cut 14 -> 30 -> 47. Its first frame matches 14 and its last matches 47 to within ~1px, so no `WARPS` entry; `222>47` is in `SEAMLESS`. The now-unused blink warps were removed.
+- Cut-out pipeline: `.agents/scripts/bridge_cutout.py` (the scripts behind the original 174 frames weren't kept). It crops the shared box (278, 27, 1374x978), keys out the off-white background and fills only small holes, so gaps such as inside the headband stay transparent. Usage is in its docstring.
+- Reference stills and prompt used: `.agents/bridge-frames/bridge3_*` (untracked, like the others).
+- Note: the clip spends its first ~1.3 s still typing before he looks up. To make the hover reaction quicker, start `B3` later (e.g. `range(185, 222)`).

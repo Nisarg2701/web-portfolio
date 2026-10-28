@@ -33,7 +33,7 @@
 
 ## Phase 5: Polish round 2 (2026-10-28)
 - [x] T1 Bridge 3 prompt + reference frames for the user (clip itself: user generates)
-- [ ] T2 (waiting on the user's clip) Integrate bridge 3 frames into `HeroCharacter.tsx` (blocked on T1 output)
+- [x] T2 Integrate bridge 3 frames (2026-10-28: frames 175-222) into `HeroCharacter.tsx` (blocked on T1 output)
 - [x] T3 Navbar uses the brand logo; emerald focus-visible ring sitewide
 - [x] T4 Experience: covered card fully faded before the next card settles
 - [x] T5 Navbar "Connect" link to the footer
