@@ -34,3 +34,13 @@ The strongest angle for this portfolio: **connect the sections.** Today Skills, 
 ## Suggested combination
 Skill constellation + horizontal project pan + credential wallet, with the constellation as the hub: clicking a project's tech chip or a certificate's skill jumps to and highlights that skill node.
 Order to build: constellation first (it defines the data links the other two reuse).
+
+## Skills, round 2 (2026-10-28)
+The constellation read as jumbled and the wheel still didn't look right. What the user liked: the old bento's clear categories. What to keep: "pick a skill, see where it was used". Ideas to think about:
+
+1. **Periodic table of skills (recommended).** Each skill an element tile (symbol "Py", "Kt", "Cl", number = how many works use it), categories as colour-blocked families like real element groups. Picking a tile lights up related tiles and fills the "Used in" panel. Strong classification, very scannable, grows naturally as skills are added, and fits the technical vibe without being a chart.
+2. **System stack diagram.** Horizontal layers ordered like a real system: Data -> Backend -> Mobile -> AI/ML -> AI Tools -> Cloud & Tools. Skills are chips inside their layer; picking one draws vertical connectors to related skills in other layers. Reads like an architecture diagram, which suits a software engineer.
+3. **Bento + live links.** The old bento boxes back as they were, plus the connection layer: pick a chip, related chips in other boxes glow, panel shows where it was used. Safest; least novel.
+4. **Skill x work matrix.** Rows = skills grouped by category, columns = jobs/projects/certificates, filled cells = used there. The most honest and recruiter-useful view; dense, so it suits a "details" toggle rather than the main view.
+5. **Terminal.** `skills --group ai`, `skills --used-in e-shark`, `whoami`: typed commands reveal skills, clickable chips as a phone fallback. Memorable and on-theme.
+6. **Orbit rings.** Categories as concentric orbits around a centre node; skills orbit slowly, pause on hover. Visually striking, but motion has to be justified and labels on moving items are hard to read.

@@ -12,6 +12,7 @@ export type Skill = { name: string; label: string; group: string; works: Work[] 
 const TITLES: Record<string, string> = {
   mobile: "Mobile",
   ai_ml: "AI & ML",
+  ai_tools: "AI Tools",
   backend: "Backend",
   databases: "Data",
   cloud_tools: "Cloud & Tools",

@@ -21,6 +21,8 @@
 
 9. **2026-10-28 feedback round:** wallet motion made smooth (one eased tween); constellation felt jumbled, so it became a data-driven **skill wheel** (user asked that new categories/skills appear without code changes); projects progress bar fixed.
 
+10. **2026-10-28:** added AI tools (ChatGPT, Claude, Gemini, Nano Banana, DALL-E, Omni, Veo) as a new category plus Vercel, Supabase, Redis. User still not happy with the wheel's look; alternatives listed in Ideas.md (round 2). The user likes the old bento's clear categories.
+
 ## Workflow Preferences
 - Work on a feature branch cut from `dev`, merge back into `dev` once verified. Pushing is a separate, explicit step.
 - Read and update the `.agents` docs before starting (plan + tasks) and again when done (Memory + handoff).
