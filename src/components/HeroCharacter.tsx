@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { B2, B3, DONE, G0, GL, GREET, IDLE, L, glance, greeting, isJump, range, warpFor } from "@/components/heroFrames";
 
 const FPS = 12; // the source clip was cut at 12fps
-const HOLD = 30; // ~2.5s glance hold, in frames
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp`;
@@ -11,46 +11,6 @@ const src = (n: number, small = false) =>
 // (bump the version whenever the frames change; older caches are deleted)
 const CACHE = "hero-frames-v3";
 const POOL = 6; // parallel downloads
-const range = (a: number, b: number) => {
-  const out: number[] = [];
-  for (let i = a; a <= b ? i <= b : i >= b; i += a <= b ? 1 : -1) out.push(i);
-  return out;
-};
-
-// Frame map (see public/hero-frames): 1-14 working; 14-22 turn screen-left (peak 22);
-// 44-112 notice -> headset off -> wave -> point down.
-const L = 22;
-const IDLE = [...range(14, 1), ...range(2, 13)]; // starts at 14, where the glances hand back
-const END = 112;
-const GREET = range(44, END);
-const DONE = [...range(END, 100), ...range(101, END - 1)]; // rests within the held point
-// Generated clips, stored after the main one: 139-174 left glance (flows on from 22) -> smiling at
-// the viewer (flows into 47).
-const B2 = range(139, 174);
-// even frames 176-222 (every other frame of the clip, 2s): working -> looks up and smiles at the
-// viewer (flows into 47); its ends match 14 and 47 to within a pixel, so it needs no size match
-const B3 = range(176, 222).filter((n) => n % 2 === 0);
-// 223-257 glance clip (every other frame of a 24fps clip): 223 working -> turns screen-right, peak at
-// 233 -> sweeps across -> 257 looking screen-left, which matches 22 exactly (so left glances hand over)
-const G0 = 223;
-const R = 233;
-const GL = 257;
-// joins that are continuous even though the frame numbers jump
-const SEAMLESS = new Set(["22>139", "174>47", "222>47", "22>257", "257>22", "257>139"]);
-const isJump = (a: number, b: number) => Math.abs(a - b) > 6 && !SEAMLESS.has(`${a}>${b}`);
-
-// The camera slowly pulls back through the clip, so at a cut the new frame is a bit smaller.
-// [from, to, scale, dx, dy]: drawing `to` as scale*p + (dx, dy) lines it up with `from`
-// (fitted on the whole figure; working frames 1-14 share frame 14's geometry).
-const WARPS: [number, number, number, number, number][] = [
-  // bridge joins (fitted on the exported cutouts)
-  [174, 47, 1.0085, -6.0, -4.4],
-  [14, G0, 1.0125, -5.8, -11.0],
-  [G0, 14, 1 / 1.0125, 5.8 / 1.0125, 11.0 / 1.0125], // exact inverse, so there-and-back matches
-  [G0, 176, 1 / 1.0125, 5.8 / 1.0125, 11.0 / 1.0125], // into bridge 3, whose start matches 14
-];
-const warpFor = (a: number, b: number) =>
-  WARPS.find(([from, to]) => Math.abs(from - Math.max(a, 14)) <= 6 && Math.abs(to - b) <= 6);
 
 type Zone = "left" | "center" | "right";
 type Mode = "idle" | "left" | "right" | "greet" | "done";
@@ -177,48 +137,15 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       setMessage(next === "greet" ? "Hey, it's you!" : next === "idle" && coarse ? "Tap me" : MESSAGES[next] ?? null);
     };
 
-    // Moves glide frame by frame from wherever he is: along the 14-43 take (so right -> left passes
-    // back through center) and through the bridge clips, which join it without a cut.
-    // where he is: turning screen-left (15-22), or on the glance clip's right turn / sweep
-    const onLeft = () => shown > 14 && shown <= L;
-    const onTurn = () => shown >= G0 && shown <= R;
-    const onSweep = () => shown > R && shown <= GL;
-    const glance = (side: "left" | "right") => {
-      const there =
-        side === "left"
-          ? onSweep() || (onTurn() && shown > (G0 + R) / 2)
-            ? range(shown, GL) // already turning: carry on across to the left (257 hands over to 22)
-            : onTurn()
-              ? [...range(shown, G0), ...range(14, L)] // barely started right: back, then left
-              : range(shown >= 1 && shown <= L ? shown : 14, L) // working runs straight into the left turn
-          : onLeft()
-            ? [...range(shown, L), ...range(GL, R)] // the sweep backwards, from the left to the right
-            : onTurn() || onSweep()
-              ? range(shown, R)
-              : range(G0, R); // working -> right turn
-      const peak = side === "left" ? L : R;
-      const home = side === "left" ? range(L, 14) : range(R, G0);
-      return [...there, ...Array(HOLD).fill(peak), ...home];
-    };
-    const greeting = () => {
-      // left side: back to the glance, then bridge 2 turns him to the viewer and into the greeting
-      if (onLeft()) return [...range(shown, L), ...B2, ...range(47, END)];
-      if (onSweep() && shown > (R + GL) / 2) return [...range(shown, GL), ...B2, ...range(47, END)];
-      // right side: turn back to the laptop, then bridge 3 lifts his head to the viewer
-      if (onTurn() || onSweep()) return [...range(shown, G0), ...B3, ...range(47, END)];
-      // from working (or a finished greeting) bridge 3 lifts his head to the viewer
-      return [...B3, ...range(47, END)];
-    };
-
     // `tap`: a deliberate click/tap, which can also restart him after the greeting. Resting the
     // cursor on the middle after the greeting would just loop it, so hover only wakes him with a glance.
     const enter = (zone: Zone, tap = false) => {
       if (mode === "greet") return;
       if (mode === "done" && zone === "center" && !tap) return;
       if (zone === "center") {
-        setMode("greet", greeting());
+        setMode("greet", greeting(shown));
         loadAll(list); // in case these frames are still queued behind others
-      } else if (mode !== zone) setMode(zone, glance(zone));
+      } else if (mode !== zone) setMode(zone, glance(zone, shown));
     };
 
     let inView = false; // mostly visible

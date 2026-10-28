@@ -65,3 +65,5 @@
 - [x] H3 Delete frames nothing plays (113-120)
 - [x] H4 Glance lag, measured: right turn spends ~1.9 s reaching its peak (bridge 1 starts slowly and stalls mid-way; left turn takes 0.67 s), and right -> left ends in ~0.5 s of near-still frames (the original blink section played backwards). Fix = new user-generated clip working -> right -> left. Prepare see-through references + prompt with a magenta key background.
 - [x] H5 Integrate the new glance clip (frames 223-257; replaces bridge 1 and take frames 23-43)
+- [x] H6 Greeting from the right no longer plays bridge 3 (glance clip turns him to centre and blinks at 239, bridge 2 continues from its own blink at 146)
+- [x] H7 Greeting from the left: cut bridge 2's held smile (158-174) and hand over at 157 -> 49 (greeting's own smile); frames 158-174 and 44-46 deleted

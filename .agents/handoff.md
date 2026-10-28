@@ -88,3 +88,10 @@ Branch `fix/hero-weight-bento`. Checklist: Tasks.md Phase 8.
 - Measured: right peak in 1.0 s (was ~1.9 s), right -> left 2.2 s with no still stretch (was a ~0.5 s frozen tail). Live check in the browser matched (right peak ~0.85 s after the cursor moved; sweep to 22 in ~2.2 s).
 - Deleted: take frames 23-43 and bridge 1 (121-138). Every frame file on disk is now played. Desktop 186 frames / 8.38 MB; phones 107 / 2.70 MB.
 - References and prompt kept in `.agents/bridge-frames/glance/` (untracked). For future clips use the same recipe: references without background + "flat magenta (#FF00FF) background" in the prompt.
+
+### Greeting paths (2026-10-28, branch `fix/greeting-paths`)
+- Frame map and paths now live in `src/components/heroFrames.ts` (pure data + `glance(side, frame)` / `greeting(frame)`); `HeroCharacter.tsx` only plays them. **Check them without a browser:** `node --experimental-strip-types .agents/scripts/check_hero_paths.ts` (every path from sample positions: frames exist, lists crossfade cuts, asserts the two rules below).
+- From the right (glance clip 223-245): 233 -> 239 (turns to centre, blinks) -> bridge 2 from 146 (its own blink; join differs less than a normal step) -> 157 -> greeting from 49. No bridge 3, no crossfade.
+- From the left: bridge 2 only up to 157 (start of the smile) -> greeting's smile at 49, size-matched (1.0325, -22.3, -17.4; frame difference 5.3 -> 2.2). Saves ~1.5 s and the double smile.
+- Deleted frames 158-174 (bridge 2's held smile) and 44-46 (old take entry). Desktop 166 frames / 7.43 MB; phones 104 / 2.64 MB; nothing unplayed on disk.
+- Live timing couldn't be watched (the preview window was throttled to ~1 frame/s); the path check and per-frame motion measurements cover it.
