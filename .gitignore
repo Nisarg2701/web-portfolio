@@ -47,3 +47,6 @@ graphify-out/
 
 # graphify
 graphify-out/
+
+# python
+__pycache__/

@@ -31,3 +31,10 @@ Tick items off as they land, and add the commit hash.
 - [x] **L1:** Deploy (Vercel). *(2026-10-26: `main` fast-forwarded to `2d26dbe` and live at https://nisarg-pakhawala-portfolio.vercel.app via Vercel project `portfolio-app`.)*
 - [x] **L2:** Add Open Graph / Twitter metadata and a preview image in `src/app/layout.tsx`. *(2026-10-26, c49424d: generated card in `src/app/opengraph-image.tsx`.)*
 - [x] **L3:** Replace the boilerplate `README.md` with a real project README. *(2026-10-26, c49424d.)*
+
+## 6. Post-launch fixes (2026-10-28, branch `fix/hero-mobile-navbar`)
+- [x] **H1:** Hero greeting only glided down to `#intro` the first time; replays did nothing. Now every greeting glides down as long as the character is still on screen.
+- [x] **H2:** Frames never showed on some phones (reported on Opera mobile) and repeat visits re-downloaded them. Phones now load an 800px frame set (`public/hero-frames/sm/`), at most 6 downloads at a time, each frame stored in Cache Storage (`hero-frames-v1`), retried 3 times and skipped if it still fails (a failed frame used to stall the animation forever). A plain `<img>` of frame 1 shows until the canvas draws.
+- [x] **H3:** Taps sometimes did nothing on mobile (taps were ignored after the greeting until the hero scrolled out of view, and devices not reporting `pointer: coarse` got no tap handler at all) and the character sometimes started by itself (auto-greet fired whenever the greeting frames finished loading, and touch-scrolls counted as hovering). Now any click/tap works in every state, only real mouse moves count as hover, and phones show a "Tap me" hint instead of autoplaying.
+- [x] **H4:** Center-zone greeting felt slow because any cursor jitter restarted its 500ms timer. Now it fires after the cursor has stayed on the middle third of the image for 250ms; a quick sweep across still doesn't trigger it.
+- [x] **N1:** Added the top navbar and a back-to-top button (see Architecture.md, component 0).

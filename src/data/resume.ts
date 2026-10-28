@@ -1,4 +1,4 @@
-import rawData from "../../data/portfolio-data.json";
+import rawData from "./portfolio-data.json";
 
 type Job = { start?: string; end?: string };
 
@@ -63,13 +63,8 @@ export const RESUME_DATA = {
     github: rawData.profile.github,
     location: rawData.profile.location
   },
-  skills: {
-    mobile: rawData.skills.mobile,
-    ai: rawData.skills.ai_ml,
-    backend: rawData.skills.backend,
-    databases: rawData.skills.databases,
-    tools: rawData.skills.cloud_tools,
-  },
+  // keyed by category as in portfolio-data.json (mobile, ai_ml, ai_tools, backend, databases, cloud_tools)
+  skills: rawData.skills as Record<string, string[]>,
   experience: rawData.experience.map(exp => ({
     company: exp.company,
     location: exp.location ?? "",
