@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DONE, G0, GE, GREET, IDLE, POINT, WAVE, glance, greeting, isJump, range } from "@/components/heroFrames";
+import { DONE, G0, GE, GREET, IDLE, POINT, WAVE, glance, greeting, range } from "@/components/heroFrames";
 
 const FPS = 12; // the source clips were cut at 12fps
 // bump whenever the frames change: it's in the URLs (frames are HTTP-cached for a week, see
 // next.config.ts) and in the Cache Storage name (older caches are deleted)
-const VERSION = 6;
+const VERSION = 7;
 // phones get an 800px-wide copy (public/hero-frames/sm): far less to download and decode
 const src = (n: number, small = false) =>
   `/hero-frames/${small ? "sm/" : ""}frame_${String(n).padStart(3, "0")}.webp?v=${VERSION}`;
@@ -115,8 +115,6 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     let list = IDLE;
     let i = 0;
     let shown = 0;
-    let fadeFrom: HTMLImageElement | null = null;
-    let fadeStart = 0;
     let last = 0;
     let raf = 0;
 
@@ -129,11 +127,12 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       setMessage(next === "greet" ? "Hey, it's you!" : next === "idle" && coarse ? "Tap me" : MESSAGES[next] ?? null);
     };
 
-    // `tap`: a deliberate click/tap, which can also restart him after the greeting. Resting the
-    // cursor on the middle after the greeting would just loop it, so hover only wakes him with a glance.
+    // `tap`: a deliberate click/tap, which can also wave again after the greeting. Resting the cursor
+    // on the middle after the greeting would just loop it, and the glances have his headphones on,
+    // so once he has greeted he keeps pointing until a tap (or he's scrolled away).
     const enter = (zone: Zone, tap = false) => {
       if (mode === "greet") return;
-      if (mode === "done" && zone === "center" && !tap) return;
+      if (mode === "done" && (zone !== "center" || !tap)) return;
       if (zone === "center") {
         setMode("greet", greeting(shown));
         loadAll(list); // in case these frames are still queued behind others
@@ -153,16 +152,9 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       }, 900);
     };
 
-    const draw = (now: number) => {
+    const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // short crossfade on a jump: old frame stays solid underneath, the new one fades in on top
-      // (fading both would leave the character half see-through mid-fade)
-      const t = fadeFrom ? Math.min((now - fadeStart) / 320, 1) : 1;
-      if (fadeFrom && t < 1) ctx.drawImage(fadeFrom, 0, 0, canvas.width, canvas.height);
-      ctx.globalAlpha = t;
       ctx.drawImage(frames[shown], 0, 0, canvas.width, canvas.height);
-      ctx.globalAlpha = 1;
-      if (t >= 1) fadeFrom = null;
     };
 
     let drawn = false;
@@ -171,10 +163,7 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
       if (!onScreen) return; // nothing to animate off screen
       // time-based: when frames arrive late (slow device, throttled tab) skip ahead instead of slowing down
       let steps = Math.min(Math.floor((now - last) / (1000 / FPS)), 6);
-      if (steps < 1) {
-        if (fadeFrom) draw(now);
-        return;
-      }
+      if (steps < 1) return;
       last = now;
       let n = shown;
       // frames that never loaded are stepped over rather than waited on
@@ -189,17 +178,9 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
           else i = 0;
         }
       }
-      if (n === shown) {
-        if (fadeFrom) draw(now);
-        return;
-      }
-      // a cut (e.g. from mid-loop into a glance) gets a short crossfade; joins through the hub don't
-      if (shown > 0 && isJump(shown, n)) {
-        fadeFrom = frames[shown];
-        fadeStart = now;
-      }
+      if (n === shown) return;
       shown = n;
-      draw(now);
+      draw();
       if (!drawn) {
         drawn = true;
         setStarted(true);

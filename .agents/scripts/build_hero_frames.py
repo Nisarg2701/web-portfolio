@@ -3,11 +3,11 @@ r"""Rebuild public/hero-frames from the three magenta clips (all start on the hu
 Usage: python .agents/scripts/build_hero_frames.py LOOP GREETING GLANCES
 (each a clip, or a folder of its frames as 001.png ...; the sources live in .agents/bridge-frames/fresh/)
 
-Keeps every 4th source frame; played at 12 fps that's twice real time (the user found real time slow).
-Numbered to match src/components/heroFrames.ts:
-  1-24     loop      (source 1, 5 ... 93; 95 is ~frame 1, so the wrap is seamless)
-  25-83    greeting  (source 5, 9 ... 237; source 1 is the hub, already shown)
-  84-130   glances   (source 5, 9 ... 189)
+Keeps every 3rd source frame; played at 12 fps that's 1.5x real time (the user found real time
+too slow and 2x too fast). Numbered to match src/components/heroFrames.ts:
+  1-32     loop      (source 1, 4 ... 94; 95 is ~frame 1, so the wrap is seamless)
+  33-111   greeting  (source 4, 7 ... 238; source 1 is the hub, already shown)
+  112-174  glances   (source 4, 7 ... 190)
 Writes frame_NNN.webp (1374x978, quality 80) and an 800px copy in sm/. Old frames are deleted first.
 """
 import subprocess
@@ -23,8 +23,8 @@ from magenta_key import key  # noqa: E402
 
 OUT = Path(__file__).resolve().parents[2] / "public" / "hero-frames"
 W, H = 1374, 978
-STEP = 4
-CLIPS = [(1, 93), (5, 237), (5, 189)]  # first and last source frame kept per clip
+STEP = 3
+CLIPS = [(1, 94), (4, 238), (4, 190)]  # first and last source frame kept per clip
 
 
 def resize(rgba, w, h):

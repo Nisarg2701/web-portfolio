@@ -77,4 +77,5 @@
 - [x] P4 Rewrite the player around hub segments (drop WARPS / SEAMLESS / bridge special cases); keep the path check script
 - [x] P5 Verify (path check, offline path render, live load in the pane), update docs, merge into dev
 - [x] P6a User feedback: greeting from a side went back to work first; animation slow. Fixed: side greeting enters the greeting from the nearest forward-facing glance frame; frames rebuilt at every 4th source frame (2x speed, half the download)
-- [ ] P6b User review of the new pace on a real screen
+- [x] P6b User: 2x too fast, 1x too slow; crossfades look bad. Rebuilt at every 3rd frame (1.5x); all crossfades replaced by measured frame matches; side holds ~2.5 s per the user's guide; after greeting, a tap waves again
+- [ ] P7 User generates two bridge clips (right look -> smile, left look -> smile) so greeting from a side is direct; then add them to the build and the paths
