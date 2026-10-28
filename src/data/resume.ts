@@ -63,7 +63,7 @@ export const RESUME_DATA = {
     github: rawData.profile.github,
     location: rawData.profile.location
   },
-  // every key under "skills" is a category, in file order; add a key or a skill and the skill wheel picks it up
+  // keyed by category as in portfolio-data.json (mobile, ai_ml, ai_tools, backend, databases, cloud_tools)
   skills: rawData.skills as Record<string, string[]>,
   experience: rawData.experience.map(exp => ({
     company: exp.company,
@@ -71,8 +71,6 @@ export const RESUME_DATA = {
     role: exp.role,
     date: exp.period,
     achievements: exp.details,
-    // optional "stack": skill names used there that the details don't spell out (links them in the skill map)
-    stack: (exp as { stack?: string[] }).stack ?? [],
   })),
   projects: rawData.projects.map(proj => ({
     name: proj.title,
@@ -81,7 +79,6 @@ export const RESUME_DATA = {
     link: proj.link,
     description: proj.description,
     image: (proj as Record<string, unknown>).image as string || "",
-    stack: (proj as { stack?: string[] }).stack ?? [],
   })),
   certifications: rawData.certifications.map(cert => ({
     name: cert.name,
