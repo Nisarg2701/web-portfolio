@@ -34,3 +34,4 @@ Long-lived context about the user and their preferences. Current state and next 
 ## Audit
 - 2026-10-25 audit: `.agents/Audit.md`; checklist `.agents/Areas-to-Work.md` (all done).
 - **2026-10-29, reduced motion**: experience cards are only sticky under `motion-safe` (in reduced motion they sit in normal flow, so a covered card can't show through); the hero's reduced-motion still is the POINT frame with "Check out the portfolio".
+- **2026-10-29, contact dialog**: the resume pane shows `public/resume-preview.webp` (no browser PDF toolbar); re-run `python .agents/scripts/render_resume.py` whenever `Resume.pdf` changes. Connect panel compacted so it fits without scrolling (from ~650px window height up).

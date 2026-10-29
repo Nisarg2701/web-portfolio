@@ -4,6 +4,8 @@ Read this first in a new chat. Last updated 2026-10-28.
 
 ## Start here
 
+**Contact dialog (2026-10-29, `feat/resume-viewer`, merged into `dev`, not pushed)**: resume shown as an image rendered from the PDF (`.agents/scripts/render_resume.py`, re-run when the PDF changes); Connect panel compacted to fit without scrolling.
+
 **Reduced motion (2026-10-29, `fix/reduced-motion-stills`, merged into `dev`, not pushed)**: experience cards no longer stack (sticky only under `motion-safe`); hero still is the pointing frame with its caption. Checked in Firefox with reduced motion on.
 
 **Git state**

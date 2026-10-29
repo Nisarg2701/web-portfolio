@@ -42,13 +42,13 @@ function ActionLink({ href, icon: IconCmp, title, subtitle, accent, newTab, down
       href={href}
       download={download}
       {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}
-      className={`group flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-2xl border transition-all ${tone.card} ${className}`}
+      className={`group flex items-center gap-3 md:gap-4 p-3 md:px-4 md:py-3.5 rounded-2xl border transition-all ${tone.card} ${className}`}
     >
-      <span className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-colors ${tone.badge}`}>
-        <IconCmp weight="bold" className={`w-5 h-5 md:w-6 md:h-6 ${tone.icon}`} />
+      <span className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${tone.badge}`}>
+        <IconCmp weight="bold" className={`w-5 h-5 ${tone.icon}`} />
       </span>
       <span className="min-w-0 flex-1 text-left">
-        <span className="block text-zinc-100 font-medium text-base md:text-lg">{title}</span>
+        <span className="block text-zinc-100 font-medium text-base">{title}</span>
         <span className="block truncate text-zinc-500 text-xs md:text-sm">{subtitle}</span>
       </span>
       <ArrowUpRight weight="bold" className={`shrink-0 w-4 h-4 md:w-5 md:h-5 transition-colors ${tone.arrow}`} />
@@ -171,31 +171,33 @@ export function Footer() {
                 <X weight="bold" className="w-6 h-6" />
               </button>
 
-              {/* Left Side: PDF Viewer - Clean, no toolbar. Hidden on phones, which rarely render inline PDFs. */}
-              <div className="hidden md:block md:flex-1 md:min-w-0 md:h-full bg-zinc-950 md:border-r border-zinc-800">
-                <object
-                  data="/Resume.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
-                  type="application/pdf"
-                  className="w-full h-full"
-                >
-                  <p className="text-zinc-400 text-center p-8">Unable to display PDF. <a href="/Resume.pdf" className="text-emerald-400 underline" download>Download instead</a>.</p>
-                </object>
+              {/* Left Side: the resume as an image (rendered from the PDF by .agents/scripts/render_resume.py),
+                  so no browser PDF toolbar. Hidden on phones, which get "Open Resume" instead. */}
+              <div className="hidden md:block md:flex-1 md:min-w-0 md:h-full overflow-y-auto overscroll-contain bg-zinc-950 md:border-r border-zinc-800 p-6 lg:p-8">
+                {/* eslint-disable-next-line @next/next/no-img-element -- one fixed image, nothing for next/image to do */}
+                <img
+                  src="/resume-preview.webp"
+                  width={1700}
+                  height={2200}
+                  alt="Resume of Nisarg Pakhawala"
+                  className="w-full h-auto rounded-lg shadow-xl"
+                />
               </div>
 
               {/* Right Side: Actions. min-h-0 lets it shrink and scroll; my-auto centres without clipping the top. */}
-              <div className="flex-1 min-h-0 md:flex-none md:w-96 overflow-y-auto overscroll-contain p-6 md:p-8 lg:p-10 flex flex-col">
+              <div className="flex-1 min-h-0 md:flex-none md:w-96 overflow-y-auto overscroll-contain p-6 md:p-8 flex flex-col">
                 <div className="my-auto">
                   <h3 id="contact-dialog-title" className="pr-12 text-2xl md:text-3xl font-semibold text-zinc-50 mb-2">Connect</h3>
-                  <p className="pr-12 md:pr-0 text-sm md:text-base text-zinc-400 mb-6 md:mb-10">Download the full resume or reach out directly.</p>
+                  <p className="pr-12 md:pr-0 text-sm text-zinc-400 mb-6">Download the full resume or reach out directly.</p>
 
                   <p className={GROUP_LABEL}>Resume</p>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2.5">
                     <ActionLink href="/Resume.pdf" newTab icon={FileText} title="Open Resume" subtitle="View it in your browser" accent className="md:hidden" />
                     <ActionLink href="/Resume.pdf" download="Nisarg_Software_AIML_Resume.pdf" icon={DownloadSimple} title="Download PDF" subtitle="Save a local copy" accent />
                   </div>
 
                   <p className={`${GROUP_LABEL} mt-6`}>Reach out</p>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2.5">
                     <ActionLink href={`mailto:${RESUME_DATA.personal.email}`} icon={EnvelopeSimple} title="Send an Email" subtitle={RESUME_DATA.personal.email} />
                     <ActionLink href={`tel:${RESUME_DATA.personal.phone.replace(/\s+/g, "")}`} icon={Phone} title="Call Me" subtitle={RESUME_DATA.personal.phone} />
                     <ActionLink href={WHATSAPP_URL} newTab icon={WhatsappLogo} title="WhatsApp" subtitle="Message me directly" />
