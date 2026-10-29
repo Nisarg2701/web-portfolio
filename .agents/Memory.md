@@ -33,3 +33,4 @@ Long-lived context about the user and their preferences. Current state and next 
 
 ## Audit
 - 2026-10-25 audit: `.agents/Audit.md`; checklist `.agents/Areas-to-Work.md` (all done).
+- **2026-10-29, reduced motion**: experience cards are only sticky under `motion-safe` (in reduced motion they sit in normal flow, so a covered card can't show through); the hero's reduced-motion still is the POINT frame with "Check out the portfolio".

@@ -101,11 +101,13 @@ export function HeroCharacter({ scrollTo }: { scrollTo?: string }) {
     };
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // reduced motion: a still of him pointing down at the portfolio
     if (reduced) {
-      load(1).then(() => {
-        if (!frames[1]) return;
-        ctx.drawImage(frames[1], 0, 0, canvas.width, canvas.height);
+      load(POINT).then(() => {
+        if (!frames[POINT]) return;
+        ctx.drawImage(frames[POINT], 0, 0, canvas.width, canvas.height);
         setStarted(true);
+        setMessage("Check out the portfolio");
       });
       return () => {
         cancelled = true;
