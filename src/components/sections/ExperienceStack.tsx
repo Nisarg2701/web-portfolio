@@ -51,7 +51,8 @@ export function ExperienceStack() {
         {RESUME_DATA.experience.map((job, i) => (
           <div
             key={i}
-            className="stack-card sticky top-0 min-h-screen w-full flex flex-col items-center justify-center p-6"
+            // reduced motion: no stacking, so a covered card never shows through the one on top
+            className="stack-card motion-safe:sticky motion-safe:top-0 motion-safe:min-h-screen w-full flex flex-col items-center justify-center p-6"
             style={{ zIndex: i + 1 }}
           >
             {/* The actual visual card inside the full-height flex container */}
