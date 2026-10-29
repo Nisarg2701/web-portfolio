@@ -5,7 +5,8 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
 import { OPEN_CONTACT } from "@/components/layout/Navbar";
 import { WHATSAPP_URL } from "@/components/layout/WhatsApp";
-import { ArrowUpRight, ArrowSquareOut, Check, Copy, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X, WhatsappLogo } from "@phosphor-icons/react/dist/ssr";
+import { ResumeViewer } from "@/components/layout/ResumeViewer";
+import { ArrowUpRight, Check, Copy, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X, WhatsappLogo } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -170,34 +171,7 @@ export function Footer() {
               transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
               className="relative flex w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/50 md:max-w-6xl md:h-[min(90vh,860px)]"
             >
-              {/* Resume viewer: the PDF rendered to an image (.agents/scripts/render_resume.py) under a slim
-                  toolbar of our own, so none of the browser's PDF controls. Phones get View/Download instead. */}
-              <div className="hidden min-w-0 flex-1 flex-col border-r border-zinc-800 bg-zinc-950 md:flex">
-                <div className="flex h-14 shrink-0 items-center gap-3 border-b border-zinc-800/80 px-5">
-                  <FileText className="h-5 w-5 text-emerald-400" />
-                  <span className="truncate font-mono text-xs text-zinc-300">{RESUME_FILE}</span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">1 page</span>
-                  <a
-                    href="/Resume.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                  >
-                    Open in new tab
-                    <ArrowSquareOut className="h-3.5 w-3.5" />
-                  </a>
-                </div>
-                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-8 lg:px-10">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- one fixed image, nothing for next/image to do */}
-                  <img
-                    src="/resume-preview.webp"
-                    width={1700}
-                    height={2200}
-                    alt="Resume of Nisarg Pakhawala"
-                    className="mx-auto h-auto w-full max-w-[760px] rounded-md shadow-2xl shadow-black/60 ring-1 ring-white/10"
-                  />
-                </div>
-              </div>
+              <ResumeViewer file={RESUME_FILE} />
 
               {/* Contact panel. min-h-0 lets it shrink and scroll on very short screens. */}
               <div className="relative flex min-h-0 w-full flex-col overflow-y-auto overscroll-contain p-6 md:w-[380px] md:shrink-0 md:p-8">
