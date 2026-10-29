@@ -1,62 +1,69 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { RESUME_DATA } from "@/data/resume";
 import { OPEN_CONTACT } from "@/components/layout/Navbar";
 import { WHATSAPP_URL } from "@/components/layout/WhatsApp";
-import { ArrowUpRight, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X, WhatsappLogo } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight, ArrowSquareOut, Check, Copy, GithubLogo, LinkedinLogo, EnvelopeSimple, Phone, DownloadSimple, FileText, X, WhatsappLogo } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-const GROUP_LABEL = "font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500 mb-3";
+const RESUME_FILE = "Nisarg_Software_AIML_Resume.pdf";
+const { email, phone, linkedin, github, role, location } = RESUME_DATA.personal;
 
-type ActionLinkProps = {
-  href: string;
-  icon: Icon;
-  title: string;
-  subtitle: string;
-  accent?: boolean; // emerald styling for the resume actions
-  newTab?: boolean;
-  download?: string;
-  className?: string;
-};
+type Contact = { icon: Icon; label: string; value: string; href: string; copy?: boolean; newTab?: boolean };
+const CONTACTS: Contact[] = [
+  { icon: EnvelopeSimple, label: "Email", value: email, href: `mailto:${email}`, copy: true },
+  { icon: Phone, label: "Phone", value: phone, href: `tel:${phone.replace(/\s+/g, "")}`, copy: true },
+  { icon: WhatsappLogo, label: "WhatsApp", value: "Message me directly", href: WHATSAPP_URL, newTab: true },
+  { icon: LinkedinLogo, label: "LinkedIn", value: "in/nisarg-pakhawala", href: linkedin, newTab: true },
+  { icon: GithubLogo, label: "GitHub", value: github.replace("https://github.com/", "@"), href: github, newTab: true },
+];
 
-function ActionLink({ href, icon: IconCmp, title, subtitle, accent, newTab, download, className = "" }: ActionLinkProps) {
-  const tone = accent
-    ? {
-        card: "bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/50",
-        badge: "bg-emerald-500/20 group-hover:bg-emerald-500/30",
-        icon: "text-emerald-400",
-        arrow: "text-emerald-500 group-hover:text-emerald-400",
-      }
-    : {
-        card: "bg-zinc-800/50 border-zinc-700/50 hover:bg-zinc-800 hover:border-zinc-600",
-        badge: "bg-zinc-800 group-hover:bg-zinc-700",
-        icon: "text-zinc-300",
-        arrow: "text-zinc-600 group-hover:text-zinc-400",
-      };
+const PILL = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98]";
 
+/** One hairline row: the row opens the link; email and phone also get a copy button beside it. */
+function ContactRow({ icon: IconCmp, label, value, href, copy, newTab }: Contact) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = () =>
+    navigator.clipboard?.writeText(value).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      },
+      () => {}, // clipboard blocked: the row link still works
+    );
   return (
-    <a
-      href={href}
-      download={download}
-      {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}
-      className={`group flex items-center gap-3 md:gap-4 p-3 md:px-4 md:py-3.5 rounded-2xl border transition-all ${tone.card} ${className}`}
-    >
-      <span className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${tone.badge}`}>
-        <IconCmp weight="bold" className={`w-5 h-5 ${tone.icon}`} />
-      </span>
-      <span className="min-w-0 flex-1 text-left">
-        <span className="block text-zinc-100 font-medium text-base">{title}</span>
-        <span className="block truncate text-zinc-500 text-xs md:text-sm">{subtitle}</span>
-      </span>
-      <ArrowUpRight weight="bold" className={`shrink-0 w-4 h-4 md:w-5 md:h-5 transition-colors ${tone.arrow}`} />
-    </a>
+    <li className="group flex items-center">
+      <a
+        href={href}
+        {...(newTab && { target: "_blank", rel: "noopener noreferrer" })}
+        className="flex min-w-0 flex-1 items-center gap-3.5 px-4 py-3 transition-colors hover:bg-zinc-800/50"
+      >
+        <IconCmp className="h-5 w-5 shrink-0 text-zinc-400 transition-colors group-hover:text-emerald-400" />
+        <span className="min-w-0 flex-1">
+          <span className="block font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">{label}</span>
+          <span className="block truncate text-sm text-zinc-100">{value}</span>
+        </span>
+        {!copy && <ArrowUpRight weight="bold" className="h-4 w-4 shrink-0 text-zinc-600 transition-colors group-hover:text-zinc-300" />}
+      </a>
+      {copy && (
+        <button
+          onClick={onCopy}
+          aria-label={copied ? `${label} copied` : `Copy ${label.toLowerCase()}`}
+          title={copied ? "Copied" : "Copy"}
+          className="mr-2 grid h-9 w-9 shrink-0 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 active:scale-95"
+        >
+          {copied ? <Check weight="bold" className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+        </button>
+      )}
+    </li>
   );
 }
 
 export function Footer() {
+  const reduce = useReducedMotion();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -103,7 +110,7 @@ export function Footer() {
     <>
       <footer id="contact" className="bg-emerald-500 text-zinc-950 py-32 px-6 mt-32 relative overflow-hidden">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -118,7 +125,7 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <button 
+            <button
               onClick={() => setIsModalOpen(true)}
               className="group inline-flex items-center gap-4 bg-zinc-950 text-zinc-50 px-8 py-5 rounded-full text-xl font-medium tracking-wide transition-transform hover:scale-105 active:scale-95"
             >
@@ -144,63 +151,96 @@ export function Footer() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
               className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm"
             />
-            
+
             <motion.div
               ref={dialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="contact-dialog-title"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md md:max-w-6xl max-h-[calc(100dvh-2rem)] md:max-h-none md:h-[85vh] bg-zinc-900 border border-zinc-800 rounded-3xl md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row"
+              exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 12 }}
+              transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+              className="relative flex w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/50 md:max-w-6xl md:h-[min(90vh,860px)]"
             >
-              <button
-                ref={closeRef}
-                onClick={() => setIsModalOpen(false)}
-                aria-label="Close dialog"
-                className="absolute top-4 right-4 md:top-6 md:right-6 text-zinc-500 hover:text-zinc-50 transition-colors z-10 bg-zinc-900/80 p-2 rounded-full backdrop-blur"
-              >
-                <X weight="bold" className="w-6 h-6" />
-              </button>
-
-              {/* Left Side: the resume as an image (rendered from the PDF by .agents/scripts/render_resume.py),
-                  so no browser PDF toolbar. Hidden on phones, which get "Open Resume" instead. */}
-              <div className="hidden md:block md:flex-1 md:min-w-0 md:h-full overflow-y-auto overscroll-contain bg-zinc-950 md:border-r border-zinc-800 p-6 lg:p-8">
-                {/* eslint-disable-next-line @next/next/no-img-element -- one fixed image, nothing for next/image to do */}
-                <img
-                  src="/resume-preview.webp"
-                  width={1700}
-                  height={2200}
-                  alt="Resume of Nisarg Pakhawala"
-                  className="w-full h-auto rounded-lg shadow-xl"
-                />
+              {/* Resume viewer: the PDF rendered to an image (.agents/scripts/render_resume.py) under a slim
+                  toolbar of our own, so none of the browser's PDF controls. Phones get View/Download instead. */}
+              <div className="hidden min-w-0 flex-1 flex-col border-r border-zinc-800 bg-zinc-950 md:flex">
+                <div className="flex h-14 shrink-0 items-center gap-3 border-b border-zinc-800/80 px-5">
+                  <FileText className="h-5 w-5 text-emerald-400" />
+                  <span className="truncate font-mono text-xs text-zinc-300">{RESUME_FILE}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">1 page</span>
+                  <a
+                    href="/Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                  >
+                    Open in new tab
+                    <ArrowSquareOut className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-8 lg:px-10">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- one fixed image, nothing for next/image to do */}
+                  <img
+                    src="/resume-preview.webp"
+                    width={1700}
+                    height={2200}
+                    alt="Resume of Nisarg Pakhawala"
+                    className="mx-auto h-auto w-full max-w-[760px] rounded-md shadow-2xl shadow-black/60 ring-1 ring-white/10"
+                  />
+                </div>
               </div>
 
-              {/* Right Side: Actions. min-h-0 lets it shrink and scroll; my-auto centres without clipping the top. */}
-              <div className="flex-1 min-h-0 md:flex-none md:w-96 overflow-y-auto overscroll-contain p-6 md:p-8 flex flex-col">
+              {/* Contact panel. min-h-0 lets it shrink and scroll on very short screens. */}
+              <div className="relative flex min-h-0 w-full flex-col overflow-y-auto overscroll-contain p-6 md:w-[380px] md:shrink-0 md:p-8">
+                <button
+                  ref={closeRef}
+                  onClick={() => setIsModalOpen(false)}
+                  aria-label="Close dialog"
+                  className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-50 md:right-5 md:top-5"
+                >
+                  <X weight="bold" className="h-5 w-5" />
+                </button>
+
+                {/* my-auto centres the block in the tall desktop panel without clipping it on short screens */}
                 <div className="my-auto">
-                  <h3 id="contact-dialog-title" className="pr-12 text-2xl md:text-3xl font-semibold text-zinc-50 mb-2">Connect</h3>
-                  <p className="pr-12 md:pr-0 text-sm text-zinc-400 mb-6">Download the full resume or reach out directly.</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-emerald-400">Contact</p>
+                  <h3 id="contact-dialog-title" className="mt-2 pr-10 text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
+                    Get in touch
+                  </h3>
+                  <p className="mt-1.5 text-sm text-zinc-400">
+                    {role}, based in {location.replace(/\s*\d+$/, "")}.
+                  </p>
 
-                  <p className={GROUP_LABEL}>Resume</p>
-                  <div className="flex flex-col gap-2.5">
-                    <ActionLink href="/Resume.pdf" newTab icon={FileText} title="Open Resume" subtitle="View it in your browser" accent className="md:hidden" />
-                    <ActionLink href="/Resume.pdf" download="Nisarg_Software_AIML_Resume.pdf" icon={DownloadSimple} title="Download PDF" subtitle="Save a local copy" accent />
-                  </div>
+                  <ul className="mt-6 divide-y divide-zinc-800 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/40">
+                    {CONTACTS.map((c) => (
+                      <ContactRow key={c.label} {...c} />
+                    ))}
+                  </ul>
 
-                  <p className={`${GROUP_LABEL} mt-6`}>Reach out</p>
-                  <div className="flex flex-col gap-2.5">
-                    <ActionLink href={`mailto:${RESUME_DATA.personal.email}`} icon={EnvelopeSimple} title="Send an Email" subtitle={RESUME_DATA.personal.email} />
-                    <ActionLink href={`tel:${RESUME_DATA.personal.phone.replace(/\s+/g, "")}`} icon={Phone} title="Call Me" subtitle={RESUME_DATA.personal.phone} />
-                    <ActionLink href={WHATSAPP_URL} newTab icon={WhatsappLogo} title="WhatsApp" subtitle="Message me directly" />
+                  <div className="mt-4 flex gap-2.5">
+                    <a
+                      href="/Resume.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${PILL} flex-1 border border-zinc-700 text-zinc-100 hover:border-zinc-500 md:hidden`}
+                    >
+                      <FileText weight="bold" className="h-4 w-4" />
+                      View resume
+                    </a>
+                    <a href="/Resume.pdf" download={RESUME_FILE} className={`${PILL} flex-1 bg-emerald-500 text-zinc-950 hover:bg-emerald-400`}>
+                      <DownloadSimple weight="bold" className="h-4 w-4" />
+                      <span className="md:hidden">Download</span>
+                      <span className="hidden md:inline">Download resume</span>
+                    </a>
                   </div>
                 </div>
               </div>
