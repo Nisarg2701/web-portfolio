@@ -33,3 +33,7 @@ Long-lived context about the user and their preferences. Current state and next 
 
 ## Audit
 - 2026-10-25 audit: `.agents/Audit.md`; checklist `.agents/Areas-to-Work.md` (all done).
+- **2026-10-29, reduced motion**: experience cards are only sticky under `motion-safe` (in reduced motion they sit in normal flow, so a covered card can't show through); the hero's reduced-motion still is the POINT frame with "Check out the portfolio".
+- **2026-10-29, contact dialog**: the resume pane shows `public/resume-preview.webp` (no browser PDF toolbar); re-run `python .agents/scripts/render_resume.py` whenever `Resume.pdf` changes. Connect panel compacted so it fits without scrolling (from ~650px window height up).
+- **2026-10-29, contact dialog redesign**: viewer has its own toolbar (file name, 1 page, open in new tab) over the resume image; panel is "Get in touch" + one hairline contact list (email/phone with copy buttons, WhatsApp, LinkedIn, GitHub) + one emerald "Download resume" pill; phones get View/Download pills. Fits without scrolling from 620px window height; desktop dialog is `h-[min(90vh,860px)]`.
+- **2026-10-29, resume zoom**: `src/components/layout/ResumeViewer.tsx` zooms 50-250% by trackpad pinch (ctrl+wheel; Safari gesture events), two-finger touch pinch, ctrl+mouse wheel (25% per notch) or the toolbar -/%/+ (the % resets). Zoom keeps the point under the cursor in place. Phones still open the PDF in a new tab (native pinch there).
